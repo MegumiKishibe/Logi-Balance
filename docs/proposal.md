@@ -214,7 +214,7 @@ Total = Work × Density
 </details>
 
 <details>
-  <summary><h2>4. 指標（KGI/KPI） </h2></summary>
+  <summary><h2>指標（KGI/KPI） </h2></summary>
 - **KGI（最終成果）**  
   - 2026/03 までに **コース負担スコア差分 ≤ 10**（2025/12–02 平均比）
 - **KPI（先行指標｜UX中心）**  
