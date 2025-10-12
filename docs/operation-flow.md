@@ -6,7 +6,7 @@
 ---
 
 ## 🔗 Figmaリンク
-[業務フロー図（Figma）](https://www.figma.com/file/XXXXXXXX/業務フロー?node-id=0-1)
+[業務フロー図（Figma）](https://www.figma.com/board/BrIrrW1wDFhQmAedVyxW4y/logi-balance%E6%A5%AD%E5%8B%99%E3%83%95%E3%83%AD%E3%83%BC?t=2Sw7okRuqk7S48pW-0)
 
 > ※上記リンク先に最新版の業務フロー（ドライバー〜社長までの全体プロセス）を管理しています。
 
