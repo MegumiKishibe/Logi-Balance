@@ -1,0 +1,60 @@
+html, body {
+  font-family: "Rajdhani", "Zen Kaku Gothic New",
+               system-ui, -apple-system, "Segoe UI",
+               "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  font-weight: 300;
+  background-color: #121212;
+  color:#ffffff
+}
+.header {
+  text-align: center;
+  display: flex; /*横並び */
+  justify-content: center;  /*中央寄せ */
+  align-items: center;  /*中央寄せ */
+  gap: 1rem;  /*要素間の隙間 */
+  padding: 2rem 0;
+  font-size: 3rem;
+}
+.title-group {
+  text-align: center;
+  display: flex;
+  flex-direction: column; /*縦並び */
+  justify-content: center;
+  align-items: center;  /*中央寄せ */
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+.title {
+  font-size: 2.5rem;
+}
+p2 {
+  color: #FF3366;
+}
+.form-group {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.field-row {
+  display: flex; /*横並び */
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.select-30 {
+  width: 30%;
+}
+
+.button-group {
+  text-align: center;
+  display: flex;
+  flex-direction: column; /*縦並び */
+  align-items: center;  /*中央寄せ */
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+.nav-button-group {
+  text-align: center;
+  display: flex;
+  justify-content: space-between; /*両端寄せ */
+}
