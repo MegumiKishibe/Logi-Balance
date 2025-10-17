@@ -16,8 +16,26 @@ buttonAdd.addEventListener('click', function() {
 
     const text = `${getDestination} - ${getPackage} - ${getPiece}`; // 並べたい順で１つの文字列にする
 
+
+
     // Create a new list item and append it to the list
     const newList = document.createElement('li');
     newList.textContent = text;
+    // Create delete button
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = '削除';
+    deleteButton.addEventListener('click', function() {
+        list.removeChild(newList);
+    });
+    // create done button
+    const doneButton = document.createElement('button');
+    doneButton.textContent = '完了';
+    doneButton.addEventListener('click', function() {
+        newList.style.textDecoration = 'line-through';
+    });
+    // newList.appendChild(label);
     list.appendChild(newList);
+    newList.appendChild(deleteButton);
+    newList.appendChild(doneButton);
 });
+
