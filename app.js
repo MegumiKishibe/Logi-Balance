@@ -48,3 +48,17 @@ buttonAdd.addEventListener('click', function() {
   newList.appendChild(doneButton);
 });
 
+// // 👇👇 ここからRailsのDBデータを取得する処理 👇👇
+// fetch('/deliveries')
+//   .then(response => response.json())
+//   .then(data => {
+//     console.log(data); // DBの値が出たらRails連携OK！
+
+//     // 例：DBの値を初期リストに表示したい場合
+//     data.forEach(item => {
+//       const li = document.createElement('li');
+//       li.textContent = `${item.destination} - ${item.package} - ${item.pieces}`;
+//       list.appendChild(li);
+//     });
+//   })
+//   .catch(error => console.error('Fetch error:', error));
