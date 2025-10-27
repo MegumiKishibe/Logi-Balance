@@ -6,6 +6,21 @@ html, body {
   background-color: #121212;
   color:#ffffff
 }
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh; /* 画面全体に適用 */
+  background: linear-gradient(
+    90deg,
+    rgba(255, 179, 179, 0.8) 0%,
+    rgba(255, 255, 255, 0.89) 63%,
+    rgba(179, 229, 179, 0.79) 100%
+  );
+  background-attachment: fixed; /* スクロールしても動かない */
+  background-repeat: no-repeat;
+  background-size: cover;
+  font-family: 'Zen Kaku Gothic New', 'Rajdhani', sans-serif; /* logi-balanceらしいフォント */
+}
 .header {
   text-align: center;
   display: flex; /*横並び */
