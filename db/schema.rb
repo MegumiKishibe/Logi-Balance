@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_20_051946) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_30_132153) do
+  create_table "course_destinations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "course_id", null: false
+    t.bigint "destination_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_course_destinations_on_course_id"
+    t.index ["destination_id"], name: "index_course_destinations_on_destination_id"
+  end
+
   create_table "courses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -46,8 +55,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_051946) do
   create_table "destinations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
     t.string "address"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" }, null: false
   end
 
   create_table "driver_assignments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -80,6 +89,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_051946) do
     t.index ["delivery_id"], name: "index_score_snapshots_on_delivery_id"
   end
 
+  add_foreign_key "course_destinations", "courses"
+  add_foreign_key "course_destinations", "destinations"
   add_foreign_key "deliveries", "courses"
   add_foreign_key "deliveries", "employees"
   add_foreign_key "delivery_stops", "deliveries"
