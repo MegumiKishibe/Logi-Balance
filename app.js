@@ -1,11 +1,11 @@
+document.addEventListener("turbo:load", () => {
 const buttonAdd = document.getElementById('button-add');
 const list = document.getElementById('list');
 const selectDestinations = document.getElementById('select-destinations');
 const selectPackages = document.getElementById('select-packages');
 const selectPieces = document.getElementById('select-pieces');
 
-
-//add button event listener
+// add button event listener
 buttonAdd.addEventListener('click', function() {
   // Get selected values from dropdowns
   const numDestinations = selectDestinations.selectedIndex; // Get the index of the selected option
@@ -22,28 +22,32 @@ buttonAdd.addEventListener('click', function() {
   // Create a new list item and append it to the list
   const newList = document.createElement('li');
   const labelSpan = document.createElement('span');
-    labelSpan.textContent = text; //spanにtextを入れる=labelSpan内のtext以外には取消線が入らないようにするため
-  // Create delete button
-  const deleteButton = document.createElement('button');
-  deleteButton.textContent = '削除';
-  deleteButton.addEventListener('click', function() {
-    list.removeChild(newList);
-  });
-  // create done button
-  const doneButton = document.createElement('button');
-  doneButton.textContent = '完了';
-  doneButton.addEventListener('click', function() {
-    labelSpan.style.textDecoration = 'line-through';
+  labelSpan.textContent = text; // spanにtextを入れる=labelSpan内のtext以外には取消線が入らないようにするため
+
+// Create delete button
+const deleteButton = document.createElement('button');
+deleteButton.type = 'button'; // ←追加！
+deleteButton.textContent = '削除';
+deleteButton.addEventListener('click', function() {
+  list.removeChild(newList);
+});
+
+// create done button
+const doneButton = document.createElement('button');
+doneButton.type = 'button'; // ←追加！
+doneButton.textContent = '完了';
+doneButton.addEventListener('click', function() {
+  labelSpan.style.textDecoration = 'line-through';
 
   // create timestamp
   const timeStamp = document.createElement('span');
-    timeStamp.textContent = ` (${new Date().toLocaleString()})`;
-    newList.appendChild(timeStamp);
-  });
+  timeStamp.textContent = ` (${new Date().toLocaleString()})`;
+  newList.appendChild(timeStamp);
+});
 
-  // newList.appendChild(label);
   list.appendChild(newList);
   newList.appendChild(labelSpan);
   newList.appendChild(deleteButton);
   newList.appendChild(doneButton);
+});
 });

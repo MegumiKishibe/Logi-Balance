@@ -1,15 +1,13 @@
 Rails.application.routes.draw do
-  get "deliveries/index"
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  get "destinations/new"
+  get "destinations/create"
+  root to: "sessions#new" # ホーム画面をログイン画面に設定
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  get "login", to: "sessions#new"  # ログイン画面（表示）
+  post "login", to: "sessions#create"  # ログイン処理（フォーム送信）
+  delete "logout", to: "sessions#destroy"  # ログアウト処理
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
-  # root "posts#index"
+  resources :deliveries, only: [ :new, :create, :show ] # 配達記録画面のルーティング
+  resources :delivery_stops, only: [ :new, :create ] # 配達先到着画面のルーティング
+  resources :destinations, only: [ :new, :create ] # 配達先登録画面のルーティング
 end
