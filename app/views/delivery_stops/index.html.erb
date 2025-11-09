@@ -1,0 +1,41 @@
+<div class="container">
+  <div class="header">
+    <h1>完了済み配達一覧</h1>
+    <h2 lang="ja"><%= Employee.find(session[:employee_id]).last_name_ja %> さん</h2>
+  </div>
+
+  <div class="title-group">
+    <div class="title">
+      <p2>完了時間が早い順</p2>
+      <p3>| Completed Deliveries</p3>
+    </div>
+  </div>
+
+  <table class="table table-striped mt-3">
+    <thead>
+      <tr>
+        <th>コース</th>
+        <th>配達先</th>
+        <th>件数</th>
+        <th>個数</th>
+        <th>完了時間</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @delivery_stops.each do |stop| %>
+        <tr>
+          <td><%= stop.delivery.course.name %></td>
+          <td><%= stop.destination.name %></td>
+          <td><%= stop.packages_count %> 件</td>
+          <td><%= stop.pieces_count %> 個</td>
+          <td><%= stop.completed_at&.strftime("%H:%M") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="nav-button-group mt-4">
+    <%= link_to "新規登録へ戻る",new_delivery_delivery_stop_path(Delivery.last),class: "btn btn-primary" %>
+    <%= link_to "ログアウト", logout_path, data: { turbo_method: :delete }, class: "btn btn-secondary" %>
+  </div>
+</div>

@@ -1,4 +1,8 @@
 <div class="container">
+  <script>
+    window.currentDeliveryId = <%= @delivery.id %>;
+  </script>
+
   <div class="header">
     <h1>Welcome back!</h1>
     <h2 lang="ja"><%= Employee.find(session[:employee_id]).last_name_ja %> さん</h2>
@@ -48,17 +52,16 @@
     </div>
 
     <ul id="list">
-      <% @delivery.delivery_stops.each do |stop| %>
-        <li>
-          <%= stop.destination.name %>：<%= stop.packages_count %>件／<%= stop.pieces_count %>個
-        </li>
+      <% @delivery_stops.each do |stop| %>
+        <% next if stop.completed_at.present? %>  <!-- 完了済みはスキップ -->
+        <li><%= stop.destination.name %>：<%= stop.packages_count %>件／<%= stop.pieces_count %>個</li>
       <% end %>
     </ul>
   </div>
 
   <div class="nav-button-group">
     <%= link_to "戻る", delivery_path(@delivery), class: "btn btn-secondary" %>
-    <%= link_to "一覧へ", deliveries_path, class: "btn btn-primary" %>
+    <%= link_to "一覧へ", delivery_stops_path, class: "btn btn-primary" %>
   </div>
 </div>
 <%= javascript_import_module_tag "delivery_stops" %>
