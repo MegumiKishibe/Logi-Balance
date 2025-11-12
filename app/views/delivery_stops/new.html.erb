@@ -1,4 +1,7 @@
 <div class="container">
+  <meta name="turbo-visit-control" content="reload">
+  <input type="hidden" id="delivery-id" value="<%= @delivery.id %>">
+
   <script>
     window.currentDeliveryId = <%= @delivery.id %>;
   </script>
