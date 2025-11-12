@@ -23,7 +23,8 @@ class DeliveriesController < ApplicationController
     odo_end_km: 0)
 
     if @delivery.save
-      redirect_to new_delivery_stop_path(delivery_id: @delivery.id), notice: "コースを開始しました。"
+      redirect_to new_delivery_delivery_stop_path(@delivery),
+        notice: "コースを開始しました。"
     else
       @courses = Course.all
       render :new, status: :unprocessable_entity
