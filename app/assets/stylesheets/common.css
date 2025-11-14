@@ -1,0 +1,154 @@
+/* ===============================
+   Global Common Styles
+=============================== */
+
+html, body {
+  font-family: "Inter", "Yu Gothic", "YuGothic",
+                "Hiragino Kaku Gothic ProN", Meiryo,
+                system-ui, -apple-system, sans-serif;
+  font-weight: 300;
+  color: #555;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+}
+
+body {
+  background: linear-gradient(
+    135deg,
+    rgba(179, 229, 179, 0.79) 0%,
+    rgba(255, 255, 255, 0.89) 37%,
+    rgba(255, 179, 179, 0.8) 100%
+  );
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  font-family: "Zen Kaku Gothic New", "Rajdhani", sans-serif;
+}
+
+/* ===============================
+   レイアウト全体
+=============================== */
+.layout-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* ===============================
+   サイドバー
+=============================== */
+.sidebar {
+  width: 220px;
+  background: linear-gradient(
+    180deg,
+    rgba(236, 251, 236, 0.85) 0%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+  border-radius: 16px;
+  margin: 24px;
+  padding: 20px 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* ===============================
+   メイン領域（上部バー＋中身）
+=============================== */
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 40px;
+}
+
+/* ===============================
+   上部バー（ロゴ＋Welcome）
+=============================== */
+.layout-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px; /* 下にCourseとの余白 */
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.logo-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #6abf69;
+  border-radius: 50%;
+}
+
+.welcome-message {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* ===============================
+   Sidebar Menu
+=============================== */
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.sidebar-menu li {
+  margin-bottom: 12px;
+}
+
+.sidebar-menu a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 400;
+  background-color: rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebar-menu a:hover {
+  background-color: rgba(179, 229, 179, 0.6);
+  transform: translateX(4px);
+}
+
+.sidebar-menu li.active a {
+  background: linear-gradient(90deg, #b3e5b3 0%, #fff 90%);
+  border-left: 4px solid #6abf69;
+  font-weight: 600;
+}
+
+/* ===============================
+   main 領域（Courseページ中身）
+=============================== */
+.main {
+  flex: 1;
+}
+
+/* ===============================
+   レスポンシブ
+=============================== */
+@media (max-width: 900px) {
+  .layout-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+}

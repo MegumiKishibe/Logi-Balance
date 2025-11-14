@@ -1,5 +1,4 @@
 <h1>Course</h1>
-<p><%= "Welcome back!#{Employee.find(session[:employee_id]).last_name_en}" if session[:employee_id] %></p>
 
 <%= form_with scope: :delivery, url: deliveries_path, method: :post, local: true do |form| %>
   <div style="margin-bottom: 1rem;">

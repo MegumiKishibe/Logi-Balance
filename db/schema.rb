@@ -22,8 +22,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_30_132153) do
 
   create_table "courses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
+    t.integer "vehicle_type_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["vehicle_type_id"], name: "vehicle_type_id"
   end
 
   create_table "deliveries", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -72,7 +74,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_30_132153) do
 
   create_table "employees", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "employee_no"
-    t.string "name"
+    t.string "last_name_ja", limit: 30, null: false
+    t.string "first_name_ja", limit: 30, null: false
+    t.string "last_name_en", limit: 30, null: false
+    t.string "first_name_en", limit: 30, null: false
     t.date "hired_on"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -89,8 +94,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_30_132153) do
     t.index ["delivery_id"], name: "index_score_snapshots_on_delivery_id"
   end
 
+  create_table "vehicle_types", id: :integer, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name", limit: 20, null: false
+  end
+
   add_foreign_key "course_destinations", "courses"
   add_foreign_key "course_destinations", "destinations"
+  add_foreign_key "courses", "vehicle_types", name: "courses_ibfk_1"
   add_foreign_key "deliveries", "courses"
   add_foreign_key "deliveries", "employees"
   add_foreign_key "delivery_stops", "deliveries"
