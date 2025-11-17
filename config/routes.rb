@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   resources :delivery_stops, only: [ :index ] do
     member do
       patch :complete
+      delete :destroy
     end
   end
 end

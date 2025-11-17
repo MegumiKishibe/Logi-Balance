@@ -18,7 +18,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body data-turbo="false">
     <% unless controller_name == "sessions" && action_name == "new" %>
       <div class="layout-container">
         <!-- サイドバー -->
