@@ -1,5 +1,5 @@
 <div class="container">
-  <meta name="turbo-visit-control" content="reload">
+  <!-- <meta name="turbo-visit-control" content="reload"> -->
   <input type="hidden" id="delivery-id" value="<%= @delivery.id %>">
 
   <script>
@@ -42,7 +42,7 @@
   <% end %>
   
   <div class="button-group">
-    <button id="button-add" type="button" class="button">Add</button>
+    <button id="button-add" type="button" data-turbo="false" class="button">Add</button>
     <%= link_to "新規配達先登録", new_destination_path, class: "button" %>
   </div>
 
@@ -56,8 +56,11 @@
 
     <ul id="list">
       <% @delivery_stops.each do |stop| %>
-        <% next if stop.completed_at.present? %>  <!-- 完了済みはスキップ -->
-        <li><%= stop.destination.name %>：<%= stop.packages_count %>件／<%= stop.pieces_count %>個</li>
+        <li data-id="<%= stop.id %>">
+          <span><%= stop.destination.name %>：<%= stop.packages_count %>件／<%= stop.pieces_count %>個</span>
+          <button class="delete-btn" data-turbo="false">削除</button>
+          <button class="done-btn"   data-turbo="false">完了</button>
+        </li>
       <% end %>
     </ul>
   </div>
@@ -67,4 +70,3 @@
     <%= link_to "一覧へ", delivery_stops_path, class: "btn btn-primary" %>
   </div>
 </div>
-<%= javascript_import_module_tag "delivery_stops" %>
