@@ -32,6 +32,9 @@
           <% end %>
         </td>
         <td>
+          <%= delivery.score_snapshots.last&.total_score || "-" %>
+        </td>
+        <td>
           <% score = delivery.score_snapshots.last&.total_score || "-" %>
           <%= score %>
         </td>

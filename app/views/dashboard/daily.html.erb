@@ -65,5 +65,8 @@
       -
     <% end %>
   </li>
-
-  <li
+  <li>
+    負担ポイント：
+    <%= @delivery.score_snapshots.last&.total_score || "-" %>
+  </li>
+</ul>
