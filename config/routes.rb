@@ -23,7 +23,7 @@ Rails.application.routes.draw do
     end
   end
 
-  # ---------- Dashboard表示リスト ----------
+  # ---------- Dashboard ----------
   resources :dashboard, only: [] do
     collection do
       get :courses      # /dashboard/courses
@@ -33,5 +33,12 @@ Rails.application.routes.draw do
       get :index        # /dashboard/:id
       get :daily        # /dashboard/:id/daily
     end
+  end
+
+  # ---------- Analytics ----------
+  resource :analytics, only: [] do
+    get :index
+    get :weekly
+    get :monthly
   end
 end
