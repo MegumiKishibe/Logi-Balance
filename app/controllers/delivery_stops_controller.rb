@@ -1,6 +1,4 @@
 class DeliveryStopsController < ApplicationController
-  protect_from_forgery with: :null_session  # ← API用途では一時的に追加OK
-
   def new
     @delivery = Delivery.find(params[:delivery_id])
     @delivery_stop = DeliveryStop.new
@@ -8,7 +6,6 @@ class DeliveryStopsController < ApplicationController
     @delivery_stops = @delivery.delivery_stops
       .includes(:destination)
       .where(completed_at: nil)
-      .where("DATE(created_at) = ?", Date.today)  # ← 追加
       .order(:id)
   end
   def create
@@ -29,19 +26,35 @@ class DeliveryStopsController < ApplicationController
 
   def complete
     @delivery_stop = DeliveryStop.find(params[:id])
-
     @delivery_stop.update!(completed_at: Time.current)
 
-    respond_to do |format|
-      format.json { render json: { status: "ok" }, status: :ok }
-      format.html { render body: nil, status: :ok }  # TurboにHTMLなしを明示
+    delivery = @delivery_stop.delivery
+
+    if delivery.delivery_stops.where(completed_at: nil).none?
+      save_score_snapshot(delivery)
     end
+
+    render json: { status: "ok" }, status: :ok
   end
+
+  private
+
+  def save_score_snapshot(delivery)
+    # 後でサービスオブジェクトに移す
+    ScoreSnapshot.create!(
+    delivery_id: delivery.id,
+    work_score: 0,
+    density_score: 0,
+    total_score: 0
+  )
+  end
+
 
   def destroy
     @delivery_stop = DeliveryStop.find(params[:id])
+
     if @delivery_stop.destroy
-      head :ok
+      render json: { status: "ok" }, status: :ok
     else
       render json: { error: "削除に失敗しました" }, status: :unprocessable_entity
     end
