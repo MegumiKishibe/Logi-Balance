@@ -8,21 +8,30 @@ Rails.application.routes.draw do
 
 
   # ---------- 配達（Deliveries） ----------
-  resources :deliveries, only: [ :new, :create, :show ] do
-    resources :delivery_stops, only: [ :new, :create ]
+  resources :deliveries, only: [:new, :create, :show] do
+    resources :delivery_stops, only: [:new, :create]
   end
 
-
   # ---------- 配達先（Destinations） ----------
-  resources :destinations, only: [ :new, :create ]
-
+  resources :destinations, only: [:new, :create]
 
   # ---------- 配達先リスト（DeliveryStops） ----------
-  # 完了済み一覧ページ（index）と完了処理（complete）
-  resources :delivery_stops, only: [ :index ] do
+  resources :delivery_stops, only: [:index] do
     member do
       patch :complete
       delete :destroy
+    end
+  end
+
+  # ---------- Dashboard表示リスト ----------
+  resources :dashboard, only: [] do
+    collection do
+      get :courses      # /dashboard/courses
+    end
+
+    member do
+      get :index        # /dashboard/:id
+      get :daily        # /dashboard/:id/daily
     end
   end
 end
