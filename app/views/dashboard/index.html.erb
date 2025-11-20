@@ -1,1 +1,41 @@
 <h1>Dashboard - <%= @course.name %> (ALL)</h1>
+<div class="tabs">
+  <%= link_to "ALL（日別）", dashboard_path(@course), class: "tab #{action_name == 'index' ? 'active' : ''}" %>
+  <%= link_to "単日実績", daily_dashboard_path(@course, date: @dates&.first), class: "tab #{action_name == 'daily' ? 'active' : ''}" %>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>日付</th>
+      <th>件数</th>
+      <th>個数</th>
+      <th>距離</th>
+      <th>所要時間</th>
+      <th>負担ポイント</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @deliveries.each do |delivery| %>
+      <% stops = delivery.delivery_stops %>
+
+      <tr>
+        <td><%= delivery.service_date %></td>
+        <td><%= stops.count %></td>
+        <td><%= stops.sum(:pieces_count) %></td>
+        <td><%= delivery.odo_end_km - delivery.odo_start_km %> km</td>
+        <td>
+          <% stops = delivery.delivery_stops.where.not(completed_at: nil).order(:completed_at) %>
+          <% if stops.present? %>
+            <%= (stops.last.completed_at - stops.first.completed_at).to_i / 60 %> 分
+          <% end %>
+        </td>
+        <td>
+          <% score = delivery.score_snapshots.last&.total_score || "-" %>
+          <%= score %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
