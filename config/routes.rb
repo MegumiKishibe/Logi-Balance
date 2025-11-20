@@ -8,15 +8,15 @@ Rails.application.routes.draw do
 
 
   # ---------- 配達（Deliveries） ----------
-  resources :deliveries, only: [:new, :create, :show] do
-    resources :delivery_stops, only: [:new, :create]
+  resources :deliveries, only: [ :new, :create, :show ] do
+    resources :delivery_stops, only: [ :new, :create ]
   end
 
   # ---------- 配達先（Destinations） ----------
-  resources :destinations, only: [:new, :create]
+  resources :destinations, only: [ :new, :create ]
 
   # ---------- 配達先リスト（DeliveryStops） ----------
-  resources :delivery_stops, only: [:index] do
+  resources :delivery_stops, only: [ :index ] do
     member do
       patch :complete
       delete :destroy
