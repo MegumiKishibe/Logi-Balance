@@ -1,4 +1,20 @@
 <h1>Dashboard - <%= @course.name %> (Daily)</h1>
+<div class="tabs">
+  <%= link_to "ALL（日別）", dashboard_path(@course), class: "tab #{action_name == 'index' ? 'active' : ''}" %>
+  <%= link_to "単日実績", daily_dashboard_path(@course, date: @date), class: "tab #{action_name == 'daily' ? 'active' : ''}" %>
+</div>
+
+<%# pulldown for date selection %>
+<h2><%= @course.name %> – 単日実績</h2>
+
+<%= form_with url: daily_dashboard_path(@course), method: :get, local: true do %>
+  <div>
+    <label>日付を選択：</label>
+    <%= select_tag :date, options_for_select(@dates, @date), onchange: "this.form.submit()" %>
+  </div>
+<% end %>
+
+
 <table class="table table-striped mt-3">
   <thead>
     <tr>
@@ -9,13 +25,45 @@
     </tr>
   </thead>
   <tbody>
-    <% @delivery_stops.each do |stop| %>
+    <% if @stops.present? %>
+      <% @stops.each do |stop| %>
+        <tr>
+          <td><%= stop.destination.name %></td>
+          <td><%= stop.packages_count %> 件</td>
+          <td><%= stop.pieces_count %> 個</td>
+          <td><%= stop.completed_at&.in_time_zone("Asia/Tokyo").strftime("%H:%M") %></td>
+        </tr>
+      <% end %>
+    <% else %>
       <tr>
-        <td><%= stop.destination.name %></td>
-        <td><%= stop.packages_count %> 件</td>
-        <td><%= stop.pieces_count %> 個</td>
-        <td><%= stop.completed_at&.in_time_zone("Asia/Tokyo").strftime("%H:%M") %></td>
+        <td colspan="4">該当する配達データがありません。</td>
       </tr>
     <% end %>
   </tbody>
 </table>
+
+<h3>TOTAL</h3>
+
+<ul class="summary-list">
+  <li>件数：<%= @stops&.count || 0 %></li>
+  <li>個数：<%= @stops&.sum(:pieces_count) || 0 %></li>
+
+  <li>
+    距離：
+    <% if @delivery.present? %>
+      <%= @delivery.odo_end_km - @delivery.odo_start_km %> km
+    <% else %>
+      -
+    <% end %>
+  </li>
+
+  <li>
+    所要時間：
+    <% if @stops.present? && @stops.first.completed_at && @stops.last.completed_at %>
+      <%= (@stops.last.completed_at - @stops.first.completed_at).to_i / 60 %> 分
+    <% else %>
+      -
+    <% end %>
+  </li>
+
+  <li
