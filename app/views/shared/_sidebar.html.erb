@@ -3,16 +3,16 @@
   <nav class="sidebar">
     <ul class="sidebar-menu">
       <li class="active">
-        <a href="/courses">
+        <%= link_to new_delivery_path do %>
           <i class="icon">🚚</i>
           <span>Courses</span>
-        </a>
+        <% end %>
       </li>
       <li>
-        <a href="/dashboard">
+        <%= link_to courses_dashboard_index_path do %>
           <i class="icon">📋</i>
           <span>Dashboard</span>
-        </a>
+        <% end %>
       </li>
       <li>
         <a href="/analytics">

@@ -1,0 +1,21 @@
+<h1>Dashboard - <%= @course.name %> (Daily)</h1>
+<table class="table table-striped mt-3">
+  <thead>
+    <tr>
+      <th>配達先</th>
+      <th>件数</th>
+      <th>個数</th>
+      <th>完了時間</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @delivery_stops.each do |stop| %>
+      <tr>
+        <td><%= stop.destination.name %></td>
+        <td><%= stop.packages_count %> 件</td>
+        <td><%= stop.pieces_count %> 個</td>
+        <td><%= stop.completed_at&.in_time_zone("Asia/Tokyo").strftime("%H:%M") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

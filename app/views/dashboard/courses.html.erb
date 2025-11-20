@@ -1,0 +1,11 @@
+<h1 class="page-title">Dashboard — コース選択</h1>
+
+<div class="courses-container">
+  <% @courses.each do |course| %>
+    <div class="course-card">
+      <%= link_to dashboard_path(course.id), class: "course-link" do %>
+        <span class="course-name"><%= course.name %></span>
+      <% end %>
+    </div>
+  <% end %>
+</div>
