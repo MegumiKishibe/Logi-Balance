@@ -5,3 +5,17 @@
   <%= link_to "週次", weekly_analytics_path, class: "tab" %>
   <%= link_to "月次", monthly_analytics_path, class: "tab active" %>
 </nav>
+
+<!-- ▼ 月選択プルダウン -->
+<%= form_with url: monthly_analytics_path, method: :get, local: true do %>
+  <label>月：</label>
+
+  <%= select_tag :month,
+    options_for_select(
+      @months.map { |m| [m.strftime("%Y年%m月"), m] },
+      @month
+    ),
+    onchange: "this.form.submit()" %>
+<% end %>
+
+<%= line_chart @monthly_scores %>

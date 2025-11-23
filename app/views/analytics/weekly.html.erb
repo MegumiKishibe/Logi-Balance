@@ -5,3 +5,18 @@
   <%= link_to "週次", weekly_analytics_path, class: "tab active" %>
   <%= link_to "月次", monthly_analytics_path, class: "tab" %>
 </nav>
+
+<%= form_with url: weekly_analytics_path, method: :get, local: true do %>
+  <label>週：</label>
+
+  <%= select_tag :start_date,
+      options_for_select(
+        @weeks.map { |d|
+          ["#{d.strftime("%m/%d")}〜#{(d+6).strftime("%m/%d")}", d]
+        },
+        @start_date
+      ),
+      onchange: "this.form.submit()" %>
+<% end %>
+
+<%= line_chart @weekly_scores %>
