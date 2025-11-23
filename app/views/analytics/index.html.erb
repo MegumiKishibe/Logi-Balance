@@ -5,3 +5,13 @@
   <%= link_to "週次", weekly_analytics_path, class: "tab" %>
   <%= link_to "月次", monthly_analytics_path, class: "tab" %>
 </nav>
+
+<!-- ▼ 日付選択プルダウン -->
+<%= form_with url: analytics_path, method: :get, local: true do %>
+  <label>日付：</label>
+  <%= select_tag :date,
+        options_for_select(@dates, @date),
+        onchange: "this.form.submit()" %>
+<% end %>
+
+<%= column_chart @daily_scores %>

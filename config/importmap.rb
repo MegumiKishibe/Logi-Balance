@@ -13,3 +13,8 @@ pin_all_from "app/javascript/common", under: "common"
 
 # delivery_stops.js
 pin "delivery_stops", to: "delivery_stops.js"
+pin "chartkick" # @5.0.1
+
+# config/importmap.rb
+pin "chartkick", to: "chartkick.js"
+pin "Chart.bundle", to: "Chart.bundle.js"

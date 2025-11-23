@@ -13,7 +13,7 @@ require "action_mailer/railtie"
 require "action_view/railtie"
 # require "action_cable/engine"
 # require "rails/test_unit/railtie"
-
+require "chartkick"
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
@@ -29,7 +29,8 @@ module LogiBalance
     config.autoload_lib(ignore: %w[assets tasks])
 
     config.time_zone = "Tokyo"
-    config.active_record.default_timezone = :local
+    # config.active_record.default_timezone = :local
+    config.active_record.default_timezone = :utc
 
 
     # Configuration for the application, engines, and railties goes here.
