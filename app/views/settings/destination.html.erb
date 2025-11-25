@@ -1,0 +1,45 @@
+<h2>配達先設定</h2>
+
+<!-- 1. 配達先選択（プルダウン or テーブルクリックでも可） -->
+<%= form_with url: destination_settings_path, method: :get, local: true do %>
+  <div>
+    <label>配達先を選択</label>
+    <%= select_tag :destination_id,
+          options_from_collection_for_select(@destinations, :id,
+                                             ->(d) { d.name },
+                                             params[:destination_id]),
+          prompt: "Select Destination",
+          onchange: "this.form.submit();" %>
+  </div>
+<% end %>
+
+<hr>
+
+<!-- 2. 配達先編集フォーム -->
+<%= form_with scope: :destination,
+              url: update_destination_settings_path,
+              method: :post,
+              local: true do |f| %>
+
+  <%= hidden_field_tag "destination[id]", @selected_destination.id %>
+
+  <div>
+    <label>名称</label>
+    <%= f.text_field :name,
+          value: @selected_destination.name %>
+  </div>
+
+  <div>
+    <label>住所</label>
+    <%= f.text_field :address,
+          value: @selected_destination.address %>
+  </div>
+
+  <div style="margin-top: 16px;">
+    <%= f.submit "Confirm", class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+<br>
+
+<%= link_to "戻る", settings_path, class: "btn btn-secondary" %>
