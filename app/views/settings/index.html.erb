@@ -1,0 +1,20 @@
+<h2>Settings</h2>
+<p>編集したい項目を選んでください。</p>
+
+<div class="settings-menu" style="margin-top: 20px;">
+  <ul style="list-style:none; padding:0;">
+
+    <li style="margin-bottom: 12px;">
+      <%= link_to driver_settings_path, class: "btn btn-primary" do %>
+        🚚 Driver Settings
+      <% end %>
+    </li>
+
+    <li>
+      <%= link_to destination_settings_path, class: "btn btn-primary" do %>
+        📍 Destination Settings
+      <% end %>
+    </li>
+
+  </ul>
+</div>
