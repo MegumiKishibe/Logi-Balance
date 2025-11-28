@@ -19,17 +19,17 @@
 #
 pre-commit:
   parallel: true
-  jobs:
-    - run: yarn eslint {staged_files}
+  commands:
+    eslint:
       glob: "*.{js,ts,jsx,tsx}"
+      run: yarn eslint --ignore-pattern vendor/javascript/**/* {staged_files}
 
-    - name: rubocop
+    rubocop:
       glob: "*.rb"
       exclude:
         - config/application.rb
         - config/routes.rb
       run: bundle exec rubocop --force-exclusion {all_files}
-
     # - name: govet
     #   files: git ls-files -m
     #   glob: "*.go"

@@ -18,3 +18,4 @@ pin "chartkick" # @5.0.1
 # config/importmap.rb
 pin "chartkick", to: "chartkick.js"
 pin "Chart.bundle", to: "Chart.bundle.js"
+pin "@rails/ujs", to: "@rails--ujs.js" # @7.1.3

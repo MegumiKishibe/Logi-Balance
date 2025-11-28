@@ -2,35 +2,39 @@
   <!-- サイドバー本体 -->
   <nav class="sidebar">
     <ul class="sidebar-menu">
-      <li class="active">
+      <li class="<%= 'active' if controller_name == 'deliveries' %>">
         <%= link_to new_delivery_path do %>
           <i class="icon">🚚</i>
           <span>Courses</span>
         <% end %>
       </li>
-      <li>
+
+      <li class="<%= 'active' if controller_name == 'dashboard' %>">
         <%= link_to courses_dashboard_index_path do %>
           <i class="icon">📋</i>
           <span>Dashboard</span>
         <% end %>
       </li>
-      <li>
+
+      <li class="<%= 'active' if controller_name == 'analytics' %>">
         <%= link_to analytics_path do %>
           <i class="icon">📈</i>
           <span>Analytics</span>
         <% end %>
       </li>
-      <li>
+
+      <li class="<%= 'active' if controller_name == 'settings' %>">
         <%= link_to settings_path do %>
           <i class="icon">⚙️</i>
           <span>Setting</span>
         <% end %>
       </li>
+
       <li>
-        <a href="/logout">
+        <%= link_to logout_path, method: :delete do %>
           <i class="icon">↩️</i>
           <span>Logout</span>
-        </a>
+        <% end %>
       </li>
     </ul>
   </nav>
