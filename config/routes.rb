@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "up" => "rails/health#show", as: :rails_health_check
   get "settings/driver"
   get "settings/destination"
   # ---------- 基本設定 ----------
