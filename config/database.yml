@@ -15,7 +15,14 @@ test:
   database: logi_balance_test
 
 production:
-  <<: *default
-  database: logi_balance_production
-  username: <%= ENV["LOGI_BALANCE_DATABASE_USERNAME"] %>
-  password: <%= ENV["LOGI_BALANCE_DATABASE_PASSWORD"] %>
+  primary: &production
+    <<: *default
+    database: logi_balance_production
+    username: <%= ENV["LOGI_BALANCE_DATABASE_USERNAME"] %>
+    password: <%= ENV["LOGI_BALANCE_DATABASE_PASSWORD"] %>
+    host: logi-balance-db.cxiwycmqimg9.us-west-2.rds.amazonaws.com
+  cache:
+    <<: *production
+  queue:
+    <<: *production
+
