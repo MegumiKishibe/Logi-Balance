@@ -2,7 +2,8 @@ class AnalyticsController < ApplicationController
   def index
     @dates = Delivery.distinct.order(service_date: :desc).pluck(:service_date)
 
-    @date = (params[:date] || @dates.first).to_date
+    base = params[:date].presence || @dates.first || Date.current
+    @date = base.to_date
 
     @daily_scores = Delivery
       .joins(:score_snapshots, :course)
