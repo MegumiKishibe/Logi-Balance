@@ -1,14 +1,11 @@
 Rails.application.routes.draw do
-  get "up" => "rails/health#show", as: :rails_health_check
-  get "settings/driver"
-  get "settings/destination"
+  # ---------- Devise ----------
+  devise_for :employees, skip: [ :registrations ]
+
   # ---------- 基本設定 ----------
-  root to: "sessions#new" # ホーム画面をログイン画面に設定
+  root to: "dashboard#index" # ログイン後のトップをダッシュボードに変更
 
-  get "login", to: "sessions#new"      # ログイン画面（表示）
-  post "login", to: "sessions#create"  # ログイン処理（フォーム送信）
-  delete "logout", to: "sessions#destroy"  # ログアウト処理
-
+  get "up" => "rails/health#show", as: :rails_health_check
 
   # ---------- 配達（Deliveries） ----------
   resources :deliveries, only: [ :new, :create, :show ] do
@@ -44,6 +41,7 @@ Rails.application.routes.draw do
     get :weekly
     get :monthly
   end
+
   # ---------- Settings -----------
   resources :settings, only: [ :index ] do
     collection do
