@@ -1,7 +1,7 @@
 <div class="container">
   <div class="header">
     <h1>完了済み配達一覧</h1>
-    <h2 lang="ja"><%= Employee.find(session[:employee_id]).last_name_ja %> さん</h2>
+    <h2 lang="ja"><%= current_employee.last_name_ja %> さん</h2>
   </div>
 
   <div class="title-group">
@@ -37,6 +37,11 @@
 
   <div class="nav-button-group mt-4">
     <%= link_to "新規登録へ戻る",new_delivery_delivery_stop_path(Delivery.last),class: "btn btn-primary" %>
-    <%= link_to "ログアウト", logout_path, data: { turbo_method: :delete }, class: "btn btn-secondary" %>
+    <%= button_to destroy_employee_session_path,
+                  method: :delete,
+                  form: { data: { turbo: false, turbo_confirm: "ログアウトしますか？" } },
+                  class: "logout-button" do %>
+      ログアウト
+    <% end %>
   </div>
 </div>

@@ -1,12 +1,15 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  helper_method :current_employee
+  # 全社員にログインを義務付ける
+  before_action :authenticate_employee!, unless: :devise_controller?
 
-  private
+  # ログイン後の遷移先
+  def after_sign_in_path_for(resource)
+    new_delivery_path
+  end
 
-  def current_employee
-    # ログイン時に session に社員IDを入れている前提
-    @current_employee ||= Employee.find_by(id: session[:employee_id])
+  # ログアウト後の遷移先
+  def after_sign_out_path_for(resource_or_scope)
+    new_employee_session_path
   end
 
   allow_browser versions: :modern

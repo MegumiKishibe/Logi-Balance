@@ -19,6 +19,18 @@
   </head>
 
   <body data-turbo="false">
+    <% if notice.present? %>
+      <p class="notice" style="color: green; text-align: center; margin-top: 10px;">
+        <%= notice %>
+      </p>
+    <% end %>
+
+    <% if alert.present? %>
+      <p class="alert" style="color: red; text-align: center; margin-top: 10px;">
+        <%= alert %>
+      </p>
+    <% end %>
+
     <% unless controller_name == "sessions" && action_name == "new" %>
       <div class="layout-container">
         <!-- サイドバー -->

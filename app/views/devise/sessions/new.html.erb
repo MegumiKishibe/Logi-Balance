@@ -1,0 +1,19 @@
+<h2>WelcomeBack!</h2>
+
+<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+  <div class="field">
+    <%= f.label :employee_no, "社員番号" %><br />
+    <%= f.text_field :employee_no, autofocus: true, autocomplete: "employee_no" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :password, "パスワード" %><br />
+    <%= f.password_field :password, autocomplete: "current-password" %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "ログイン" %>
+  </div>
+<% end %>
+
+<%= render "employees/shared/links" %>

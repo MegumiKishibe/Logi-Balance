@@ -31,9 +31,12 @@
       </li>
 
       <li>
-        <%= link_to logout_path, method: :delete do %>
+        <%= button_to destroy_employee_session_path,
+                      method: :delete,
+                      form: { data: { turbo: false, turbo_confirm: "ログアウトしますか？" } },
+                      class: "logout-button" do %>
           <i class="icon">↩️</i>
-          <span>Logout</span>
+          <span>ログアウト</span>
         <% end %>
       </li>
     </ul>
