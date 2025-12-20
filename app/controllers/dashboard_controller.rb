@@ -6,13 +6,24 @@ class DashboardController < ApplicationController
 
   # ALL（日別集計）
   def index
-    @course = Course.find(params[:id]) # コース取得
-    @deliveries = @course.deliveries.order(service_date: :desc) # 配達実績取得
+    @course =
+      if params[:id].present?
+        Course.find(params[:id])
+      else
+        Course.first
+      end
+
+    @deliveries = @course.deliveries.order(service_date: :desc)
   end
 
   # 単日実績
   def daily
-    @course = Course.find(params[:id])
+    @course =
+    if params[:id].present?
+      Course.find(params[:id])
+    else
+      Course.first
+    end
 
     @dates = @course.deliveries.order(service_date: :desc).pluck(:service_date) # 利用可能な日付一覧取得
 
