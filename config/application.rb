@@ -32,7 +32,6 @@ module LogiBalance
     # config.active_record.default_timezone = :local
     config.active_record.default_timezone = :utc
 
-
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
