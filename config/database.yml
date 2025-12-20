@@ -15,14 +15,16 @@ test:
   database: logi_balance_test
 
 production:
-  primary: &production
+  primary:
     <<: *default
     database: logi_balance_production
-    username: <%= ENV["LOGI_BALANCE_DATABASE_USERNAME"] %>
-    password: <%= ENV["LOGI_BALANCE_DATABASE_PASSWORD"] %>
-    host: logi-balance-db.cxiwycmqimg9.us-west-2.rds.amazonaws.com
-  cache:
-    <<: *production
-  queue:
-    <<: *production
+    username: <%= ENV.fetch("LOGI_BALANCE_DATABASE_USERNAME") %>
+    password: <%= ENV.fetch("LOGI_BALANCE_DATABASE_PASSWORD") %>
+    host: <%= ENV.fetch("LOGI_BALANCE_DATABASE_HOST") %>
 
+  cache:
+    <<: *default
+    database: logi_balance_cache
+    username: <%= ENV.fetch("LOGI_BALANCE_DATABASE_USERNAME") %>
+    password: <%= ENV.fetch("LOGI_BALANCE_DATABASE_PASSWORD") %>
+    host: <%= ENV.fetch("LOGI_BALANCE_DATABASE_HOST") %>
