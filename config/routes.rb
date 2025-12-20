@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   devise_for :employees, skip: [ :registrations ]
 
   # ---------- 基本設定 ----------
-  root to: "dashboard#index" # ログイン後のトップをダッシュボードに変更
+  root to: "deliveries#new" # ログイン後のトップを配達登録画面に設定
 
   get "up" => "rails/health#show", as: :rails_health_check
 
