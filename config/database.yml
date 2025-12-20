@@ -9,22 +9,29 @@ default: &default
 development:
   <<: *default
   database: logi_balance_development
+  username: <%= ENV.fetch("LOGI_BALANCE_DATABASE_USERNAME", "root") %>
+  password: <%= ENV.fetch("LOGI_BALANCE_DATABASE_PASSWORD", "") %>
+  host: <%= ENV.fetch("LOGI_BALANCE_DATABASE_HOST", "127.0.0.1") %>
 
 test:
   <<: *default
   database: logi_balance_test
+  username: <%= ENV.fetch("LOGI_BALANCE_DATABASE_USERNAME", "root") %>
+  password: <%= ENV.fetch("LOGI_BALANCE_DATABASE_PASSWORD", "") %>
+  host: <%= ENV.fetch("LOGI_BALANCE_DATABASE_HOST", "127.0.0.1") %>
 
 production:
   primary:
     <<: *default
     database: logi_balance_production
-    username: <%= ENV.fetch("LOGI_BALANCE_DATABASE_USERNAME") %>
-    password: <%= ENV.fetch("LOGI_BALANCE_DATABASE_PASSWORD") %>
-    host: <%= ENV.fetch("LOGI_BALANCE_DATABASE_HOST") %>
+    username: <%= ENV.fetch("LOGI_BALANCE_DATABASE_USERNAME") { ENV["RAILS_ENV"] == "production" ? raise("Missing LOGI_BALANCE_DATABASE_USERNAME") : "root" } %>
+    password: <%= ENV.fetch("LOGI_BALANCE_DATABASE_PASSWORD") { ENV["RAILS_ENV"] == "production" ? raise("Missing LOGI_BALANCE_DATABASE_PASSWORD") : "" } %>
+    host: <%= ENV.fetch("LOGI_BALANCE_DATABASE_HOST") { ENV["RAILS_ENV"] == "production" ? raise("Missing LOGI_BALANCE_DATABASE_HOST") : "127.0.0.1" } %>
 
   cache:
     <<: *default
     database: logi_balance_cache
-    username: <%= ENV.fetch("LOGI_BALANCE_DATABASE_USERNAME") %>
-    password: <%= ENV.fetch("LOGI_BALANCE_DATABASE_PASSWORD") %>
-    host: <%= ENV.fetch("LOGI_BALANCE_DATABASE_HOST") %>
+    username: <%= ENV.fetch("LOGI_BALANCE_DATABASE_USERNAME") { ENV["RAILS_ENV"] == "production" ? raise("Missing LOGI_BALANCE_DATABASE_USERNAME") : "root" } %>
+    password: <%= ENV.fetch("LOGI_BALANCE_DATABASE_PASSWORD") { ENV["RAILS_ENV"] == "production" ? raise("Missing LOGI_BALANCE_DATABASE_PASSWORD") : "" } %>
+    host: <%= ENV.fetch("LOGI_BALANCE_DATABASE_HOST") { ENV["RAILS_ENV"] == "production" ? raise("Missing LOGI_BALANCE_DATABASE_HOST") : "127.0.0.1" } %>
+
