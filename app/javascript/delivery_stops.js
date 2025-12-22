@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const list = document.getElementById("list");
   const selectDestinations = document.getElementById("select-destinations");
   const inputPackages = document.getElementById("select-packages"); // number_field
-  const inputPieces = document.getElementById("select-pieces");     // number_field
+  const inputPieces = document.getElementById("select-pieces"); // number_field
 
   // delivery id (from window.currentDeliveryId OR hidden field)
   const deliveryId =
@@ -18,14 +18,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const csrfToken = document.querySelector("[name='csrf-token']")?.content;
 
-  if (!buttonAdd || !list || !selectDestinations || !inputPackages || !inputPieces) {
+  if (
+    !buttonAdd ||
+    !list ||
+    !selectDestinations ||
+    !inputPackages ||
+    !inputPieces
+  ) {
     console.warn("delivery_stops.js: required elements not found. stop.");
     return;
   }
+
   if (!deliveryId) {
     console.warn("delivery_stops.js: deliveryId not found. stop.");
     return;
   }
+
   if (!csrfToken) {
     console.warn("delivery_stops.js: CSRF token not found. stop.");
     return;
@@ -34,10 +42,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // --------------------------
   // Helpers
   // --------------------------
-  const formatCompletedAt = (isoString) => {
-    if (!isoString) return null;
-    const d = new Date(isoString);
-    if (Number.isNaN(d.getTime())) return null;
+  const formatCompletedAt = (value) => {
+    if (!value) return "";
+
+    // すでに "YYYY/MM/DD HH:MM" みたいな整形文字列ならそのまま
+    if (typeof value === "string" && !value.includes("T")) {
+      return value;
+    }
+
+    // ISOなら Date にして整形
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return String(value);
 
     return d.toLocaleString("ja-JP", {
       timeZone: "Asia/Tokyo",
@@ -49,34 +64,29 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  const nowText = () =>
-    new Date().toLocaleString("ja-JP", {
-      timeZone: "Asia/Tokyo",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-  // 既存ボタンにイベント付与（増殖しない）
+  // --------------------------
+  // 既存li（ERB描画済み）にイベント付与
+  // --------------------------
   const enhanceListItem = (li) => {
-    if (!li || li.dataset.enhanced === "true") return;
+    if (!li) return;
+    if (li.dataset.enhanced === "true") return;
     li.dataset.enhanced = "true";
 
     const id = li.dataset.id;
-    const textSpan = li.querySelector("span");
-    const deleteBtn = li.querySelector(".delete-btn");
-    const doneBtn = li.querySelector(".done-btn");
-
     if (!id) {
       console.warn("li has no data-id:", li);
       return;
     }
 
+    const textSpan = li.querySelector("span");
+    const deleteBtn = li.querySelector(".delete-btn");
+    const doneBtn = li.querySelector(".done-btn");
+
     // ---- Delete ----
     if (deleteBtn) {
       deleteBtn.type = "button";
+      deleteBtn.setAttribute("data-turbo", "false");
+
       deleteBtn.addEventListener("click", async (event) => {
         event.preventDefault();
 
@@ -109,6 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---- Complete ----
     if (doneBtn) {
       doneBtn.type = "button";
+      doneBtn.setAttribute("data-turbo", "false");
+
       doneBtn.addEventListener("click", async (event) => {
         event.preventDefault();
 
@@ -130,23 +142,22 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
           }
 
-          const data = await res.json(); // { status: "ok", completed_at: "..." }
-          console.log("complete response:", data);
+          const data = await res.json().catch(() => ({}));
 
           // UI update
           if (textSpan) textSpan.style.textDecoration = "line-through";
           doneBtn.textContent = "完了済み";
           doneBtn.disabled = true;
 
-          // timestamp（重複防止）
+          // timestamp（重複防止）: textSpan の直後に表示（見えやすい）
           if (!li.querySelector(".done-at")) {
             const ts = document.createElement("span");
             ts.className = "done-at";
+            ts.style.marginLeft = "8px";
 
-            const completedAtText = formatCompletedAt(data?.completed_at) || nowText();
-            ts.textContent = `（${completedAtText}）`;
+            const completedAtText = formatCompletedAt(data?.completed_at);
+            ts.textContent = completedAtText ? `（${completedAtText}）` : "";
 
-            // ★見えやすいようにテキストの直後に挿入
             if (textSpan) {
               textSpan.insertAdjacentElement("afterend", ts);
             } else {
@@ -161,7 +172,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  // --------------------------
   // JSで新規liを作る（新規追加分のみ）
+  // --------------------------
   const buildListItem = ({ id, labelText }) => {
     const li = document.createElement("li");
     li.dataset.id = String(id);
@@ -252,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const data = await res.json(); // { id: ... } を想定
+      const data = await res.json().catch(() => ({})); // { id: ... } を想定
       if (!data?.id) {
         console.error("POST response has no id:", data);
         alert("追加に失敗しました（レスポンス不正）");
@@ -262,6 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const li = buildListItem({ id: data.id, labelText });
       list.appendChild(li);
 
+      // 入力リセット
       inputPackages.value = "";
       inputPieces.value = "";
       selectDestinations.selectedIndex = 0;
