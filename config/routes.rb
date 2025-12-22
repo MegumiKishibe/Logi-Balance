@@ -16,10 +16,9 @@ Rails.application.routes.draw do
   resources :destinations, only: [ :new, :create, :edit, :update ]
 
   # ---------- 配達先リスト（DeliveryStops） ----------
-  resources :delivery_stops, only: [ :index ] do
+  resources :delivery_stops, only: [ :index, :destroy ] do
     member do
       patch :complete
-      delete :destroy
     end
   end
 
