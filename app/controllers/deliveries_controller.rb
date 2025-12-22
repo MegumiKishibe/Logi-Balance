@@ -1,4 +1,6 @@
 class DeliveriesController < ApplicationController
+  before_action :authenticate_employee!
+
   def index
     @deliveries = Delivery.includes(:employee, :course).order(service_date: :desc)
   end
@@ -10,6 +12,7 @@ class DeliveriesController < ApplicationController
   end
 
   def create
+    Rails.logger.info("current_employee.id=#{current_employee&.id.inspect}")
     @delivery = current_employee.deliveries.new(
       course_id: params[:delivery][:course_id],
       service_date: Date.today,

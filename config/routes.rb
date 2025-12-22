@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   # ---------- 配達（Deliveries） ----------
-  resources :deliveries, only: [ :new, :create, :show ] do
+  resources :deliveries, only: [ :index, :new, :create, :show ] do
     resources :delivery_stops, only: [ :new, :create ]
   end
 
