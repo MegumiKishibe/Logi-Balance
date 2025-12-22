@@ -30,12 +30,16 @@ class DeliveryStopsController < ApplicationController
   end
 
   def complete
+    @delivery_stop = DeliveryStop.find(params[:id])
     @delivery_stop.update!(completed_at: Time.current)
 
     delivery = @delivery_stop.delivery
     save_score_snapshot(delivery) if delivery.delivery_stops.where(completed_at: nil).none?
 
-    render json: { status: "ok", completed_at: @delivery_stop.completed_at }, status: :ok
+    render json: {
+      status: "ok",
+      completed_at: @delivery_stop.completed_at.in_time_zone.strftime("%Y/%m/%d %H:%M")
+    }, status: :ok
   end
 
   def destroy
