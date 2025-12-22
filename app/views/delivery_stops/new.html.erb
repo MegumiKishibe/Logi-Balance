@@ -8,7 +8,7 @@
 
   <div class="header">
     <h1>Welcome back!</h1>
-    <h2 lang="ja"><%= Employee.find(session[:employee_id]).last_name_ja %> さん</h2>
+    <h2 lang="ja"><%= current_employee.last_name_ja %> さん</h2>
   </div>
 
   <div class="title-group">
@@ -17,7 +17,7 @@
       <p3>| Package-Registration</p3>
     </div>
     <div class="course-driver">
-      <p1><%= @delivery.course.name %> コース : <%= Employee.find(session[:employee_id]).last_name_ja %>D</p1>
+      <p><%= @delivery.course.name %> コース : <%= current_employee.last_name_ja %>D</p>
     </div>
   </div>
 
