@@ -12,7 +12,6 @@ class DeliveriesController < ApplicationController
   end
 
   def create
-    Rails.logger.info("current_employee.id=#{current_employee&.id.inspect}")
     @delivery = current_employee.deliveries.new(
       course_id: params[:delivery][:course_id],
       service_date: Date.today,
@@ -33,6 +32,22 @@ class DeliveriesController < ApplicationController
 
   def show
     @delivery = Delivery.find(params[:id])
+  end
+
+  def finish
+    @delivery = current_employee.deliveries.find(params[:id])
+
+    odo_end_km = params.dig(:delivery, :odo_end_km)
+    if odo_end_km.blank?
+      redirect_to new_delivery_delivery_stop_path(@delivery), alert: "終了指針を入力してください"
+      return
+    end
+
+    if @delivery.update(odo_end_km: odo_end_km, finished_at: Time.current)
+      redirect_to delivery_stops_path(delivery_id: @delivery.id), notice: "終了指針を登録しました"
+    else
+      redirect_to new_delivery_delivery_stop_path(@delivery), alert: "終了指針の登録に失敗しました"
+    end
   end
 
   private
