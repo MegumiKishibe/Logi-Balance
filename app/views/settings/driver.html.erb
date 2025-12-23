@@ -1,7 +1,7 @@
 <h2>Driver Settings</h2>
 
 <!-- 1. ドライバー選択プルダウン -->
-<%= form_with url: settings_driver_path, method: :get, local: true do %>
+<%= form_with url: driver_settings_path, method: :get, local: true do %>
   <div>
     <label>ドライバーを選択</label>
     <%= select_tag :employee_id,
