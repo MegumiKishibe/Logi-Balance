@@ -16,8 +16,8 @@ namespace :demo do
     remaining = total
     (1..n).each do |i|
       left = n - i
-      min_i = [min, remaining - left * max].max
-      max_i = [max, remaining - left * min].min
+      min_i = [ min, remaining - left * max ].max
+      max_i = [ max, remaining - left * min ].min
       v = rand(min_i..max_i)
       parts << v
       remaining -= v
@@ -39,8 +39,8 @@ namespace :demo do
       floor = floors[idx]
       # 残り左側の最小は floors[idx+1..].sum
       min_left = floors[(idx + 1)..].sum
-      min_i = [floor, remaining - left * max].max
-      max_i = [max, remaining - min_left].min
+      min_i = [ floor, remaining - left * max ].max
+      max_i = [ max, remaining - min_left ].min
       v = rand(min_i..max_i)
       parts << v
       remaining -= v
@@ -68,9 +68,9 @@ namespace :demo do
 
     # 重い/軽いの「寄せ方」
     heavy_pkg_range = (pkg_max - 5..pkg_max)    # 45..50
-    heavy_pcs_range = ([pcs_max - 10, pcs_min].max..pcs_max) # 90..100
-    light_pkg_range = (pkg_min..[pkg_min + 5, pkg_max].min)  # 20..25
-    light_pcs_range = (pcs_min..[pcs_min + 15, pcs_max].min) # 20..35
+    heavy_pcs_range = ([ pcs_max - 10, pcs_min ].max..pcs_max) # 90..100
+    light_pkg_range = (pkg_min..[ pkg_min + 5, pkg_max ].min)  # 20..25
+    light_pcs_range = (pcs_min..[ pcs_min + 15, pcs_max ].min) # 20..35
 
     # コース7本（2 heavy / 2 light / 3 random）
     course_specs = [
@@ -168,9 +168,9 @@ namespace :demo do
         # pieces は packages 以上にする（各stopでも pieces>=packages にしたいので）
         pieces_total =
           case kind
-          when :heavy then rand([heavy_pcs_range.begin, packages_total].max..heavy_pcs_range.end)
-          when :light then rand([light_pcs_range.begin, packages_total].max..light_pcs_range.end)
-          else rand([pcs_min, packages_total].max..pcs_max)
+          when :heavy then rand([ heavy_pcs_range.begin, packages_total ].max..heavy_pcs_range.end)
+          when :light then rand([ light_pcs_range.begin, packages_total ].max..light_pcs_range.end)
+          else rand([ pcs_min, packages_total ].max..pcs_max)
           end
 
         # stop数（packages_total を 1..10 で割れる範囲 & pieces_total を 1..20 で割れる範囲）
@@ -182,9 +182,9 @@ namespace :demo do
 
         stop_count =
           case kind
-          when :heavy then [rand(10..18), min_stops].max
-          when :light then [rand(6..10),  min_stops].max
-          else             [rand(8..14),  min_stops].max
+          when :heavy then [ rand(10..18), min_stops ].max
+          when :light then [ rand(6..10),  min_stops ].max
+          else             [ rand(8..14),  min_stops ].max
           end
 
         # 分割（各stop packages 1..10 / pieces 1..20 かつ pieces>=packages）
