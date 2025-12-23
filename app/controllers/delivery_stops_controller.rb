@@ -24,10 +24,51 @@ class DeliveryStopsController < ApplicationController
   end
 
   def index
-    @delivery_stops = DeliveryStop.includes(:destination, :delivery)
-                                  .where(completed_at: Time.zone.today.all_day)
-                                  .order(completed_at: :asc)
+    @delivery =
+      current_employee.deliveries.find_by(id: params[:delivery_id]) ||
+      current_employee.deliveries.where(service_date: Date.current).order(started_at: :desc).first
+
+    unless @delivery
+      @delivery_stops = DeliveryStop.none
+      @completed_stops = DeliveryStop.none
+      @pending_stops = DeliveryStop.none
+      @total_packages = 0
+      @total_pieces = 0
+      @work_seconds = 0
+      @distance_km = nil
+      return
+    end
+
+    base = @delivery.delivery_stops.includes(:destination)
+
+    # 完了分（完了順に）
+    @completed_stops =
+      base.where(completed_at: Time.zone.today.all_day)
+          .order(completed_at: :asc, id: :asc)
+
+    # 未完了（必要なら表示用）
+    @pending_stops =
+      base.where(completed_at: nil)
+          .order(created_at: :asc, id: :asc)
+
+    # 既存view互換
+    @delivery_stops = @completed_stops.includes(delivery: :course)
+
+    # 合計
+    @total_packages = @completed_stops.sum(:packages_count)
+    @total_pieces   = @completed_stops.sum(:pieces_count)
+
+    # 時間（最後-最初：完了時刻ベース）
+    first = @completed_stops.minimum(:completed_at)
+    last  = @completed_stops.maximum(:completed_at)
+    @work_seconds = (first && last) ? (last - first).to_i : 0
+
+    # 指針（終了-開始）
+    if @delivery.odo_start_km.present? && @delivery.odo_end_km.present? && @delivery.odo_end_km.to_i > 0
+      @distance_km = @delivery.odo_end_km - @delivery.odo_start_km
+    end
   end
+
 
   def complete
     @delivery_stop = DeliveryStop.find(params[:id])
