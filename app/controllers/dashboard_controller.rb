@@ -13,7 +13,27 @@ class DashboardController < ApplicationController
         Course.first
       end
 
-    @deliveries = @course.deliveries.order(service_date: :desc)
+    base = @course.deliveries
+
+    # 日付（service_date）を10個ずつページング
+    @page_dates = base
+      .select(:service_date)
+      .distinct
+      .order(service_date: :desc)
+      .page(params[:page])
+      .per(10)
+
+    dates = @page_dates.map(&:service_date)
+
+    # その10日分だけ deliveries を取得
+    @deliveries =
+      if dates.any?
+        base.where(service_date: dates).order(service_date: :desc, id: :desc)
+      else
+        base.none
+      end
+
+    @deliveries = @deliveries.includes(:delivery_stops, :score_snapshots)
   end
 
   # 単日実績
@@ -35,6 +55,30 @@ class DashboardController < ApplicationController
       @stops = @delivery.delivery_stops.where.not(completed_at: nil).order(:completed_at)
     else
       @stops = []
+    end
+  end
+
+  def dashboard
+    base = Delivery.all
+
+    @page_dates = base
+      .select(:service_date)
+      .distinct
+      .order(service_date: :desc)
+      .page(params[:page])
+      .per(10)
+
+    dates = @page_dates.map(&:service_date)
+
+    if dates.any?
+      to   = dates.first
+      from = dates.last
+
+      @deliveries = base
+        .where(service_date: from..to)
+        .order(service_date: :desc, id: :desc)
+    else
+      @deliveries = base.none
     end
   end
 end

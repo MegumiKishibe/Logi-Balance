@@ -58,3 +58,5 @@ gem "mysql2", "~> 0.5.7"
 gem "chartkick"
 gem "groupdate"
 gem "devise"
+gem "kaminari"
+

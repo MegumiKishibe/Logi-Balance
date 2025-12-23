@@ -4,6 +4,8 @@
   <%= link_to "単日実績", daily_dashboard_path(@course, date: @dates&.first), class: "tab #{action_name == 'daily' ? 'active' : ''}" %>
 </div>
 
+<%= paginate @page_dates %>
+
 <table>
   <thead>
     <tr>
@@ -18,27 +20,25 @@
 
   <tbody>
     <% @deliveries.each do |delivery| %>
-      <% stops = delivery.delivery_stops %>
+      <% stops_all = delivery.delivery_stops %>
+      <% stops_done = stops_all.where.not(completed_at: nil).order(:completed_at) %>
 
       <tr>
         <td><%= delivery.service_date %></td>
-        <td><%= stops.count %></td>
-        <td><%= stops.sum(:pieces_count) %></td>
+        <td><%= stops_all.count %></td>
+        <td><%= stops_all.sum(:pieces_count) %></td>
         <td><%= delivery.odo_end_km - delivery.odo_start_km %> km</td>
         <td>
-          <% stops = delivery.delivery_stops.where.not(completed_at: nil).order(:completed_at) %>
-          <% if stops.present? %>
-            <%= (stops.last.completed_at - stops.first.completed_at).to_i / 60 %> 分
+          <% if stops_done.present? %>
+            <%= (stops_done.last.completed_at - stops_done.first.completed_at).to_i / 60 %> 分
+          <% else %>
+            -
           <% end %>
         </td>
-        <td>
-          <%= delivery.score_snapshots.last&.total_score || "-" %>
-        </td>
-        <td>
-          <% score = delivery.score_snapshots.last&.total_score || "-" %>
-          <%= score %>
-        </td>
+        <td><%= delivery.score_snapshots.last&.total_score || "-" %></td>
       </tr>
     <% end %>
   </tbody>
 </table>
+
+<%= paginate @page_dates %>
