@@ -16,8 +16,8 @@ namespace :demo do
     remaining = total
     (1..n).each do |i|
       left = n - i
-      min_i = [ min, remaining - left * max ].max
-      max_i = [ max, remaining - left * min ].min
+      min_i = [min, remaining - left * max].max
+      max_i = [max, remaining - left * min].min
       v = rand(min_i..max_i)
       parts << v
       remaining -= v
@@ -39,8 +39,8 @@ namespace :demo do
       floor = floors[idx]
       # 残り左側の最小は floors[idx+1..].sum
       min_left = floors[(idx + 1)..].sum
-      min_i = [ floor, remaining - left * max ].max
-      max_i = [ max, remaining - min_left ].min
+      min_i = [floor, remaining - left * max].max
+      max_i = [max, remaining - min_left].min
       v = rand(min_i..max_i)
       parts << v
       remaining -= v
@@ -53,7 +53,7 @@ namespace :demo do
   task seed_annual: :environment do
     # 期間（指定がなければユーザー希望の1年）
     start_date = parse_date!(ENV.fetch("START_DATE", "2024-12-01"))
-    end_date   = parse_date!(ENV.fetch("END_DATE",   "2025-11-30"))
+    end_date   = parse_date!(ENV.fetch("END_DATE", "2025-11-30"))
     raise "START_DATE must be <= END_DATE" if start_date > end_date
 
     prefix = ENV.fetch("DEMO_PREFIX", "[DEMO]")
@@ -67,10 +67,10 @@ namespace :demo do
     pcs_max = ENV.fetch("PCS_MAX", "100").to_i
 
     # 重い/軽いの「寄せ方」
-    heavy_pkg_range = (pkg_max - 5..pkg_max)    # 45..50
-    heavy_pcs_range = ([ pcs_max - 10, pcs_min ].max..pcs_max) # 90..100
-    light_pkg_range = (pkg_min..[ pkg_min + 5, pkg_max ].min)  # 20..25
-    light_pcs_range = (pcs_min..[ pcs_min + 15, pcs_max ].min) # 20..35
+    heavy_pkg_range = (pkg_max - 5..pkg_max) # 45..50
+    heavy_pcs_range = ([pcs_max - 10, pcs_min].max..pcs_max) # 90..100
+    light_pkg_range = (pkg_min..[pkg_min + 5, pkg_max].min) # 20..25
+    light_pcs_range = (pcs_min..[pcs_min + 15, pcs_max].min) # 20..35
 
     # コース7本（2 heavy / 2 light / 3 random）
     course_specs = [
@@ -90,7 +90,7 @@ namespace :demo do
     # VehicleType（共通）
     vt = VehicleType.find_or_create_by!(name: "#{prefix} 2t")
 
-   # Drivers 7人
+    # Drivers 7人
     employees = (0..6).map do |i|
       no = employee_no_base + i
 
@@ -130,6 +130,7 @@ namespace :demo do
     # 1年分作成（1日=7 delivery）
     created_deliveries = 0
     created_stops = 0
+    created_snapshots = 0
 
     (start_date..end_date).each_with_index do |date, day_idx|
       courses.each_with_index do |course, ci|
@@ -143,6 +144,7 @@ namespace :demo do
 
         if delivery
           delivery.delivery_stops.delete_all
+          delivery.score_snapshots.delete_all # ★追加：作り直し時は snapshot も削除
           delivery.update!(
             started_at: started_at,
             odo_start_km: odo_start,
@@ -172,9 +174,9 @@ namespace :demo do
         # pieces は packages 以上にする（各stopでも pieces>=packages にしたいので）
         pieces_total =
           case kind
-          when :heavy then rand([ heavy_pcs_range.begin, packages_total ].max..heavy_pcs_range.end)
-          when :light then rand([ light_pcs_range.begin, packages_total ].max..light_pcs_range.end)
-          else rand([ pcs_min, packages_total ].max..pcs_max)
+          when :heavy then rand([heavy_pcs_range.begin, packages_total].max..heavy_pcs_range.end)
+          when :light then rand([light_pcs_range.begin, packages_total].max..light_pcs_range.end)
+          else rand([pcs_min, packages_total].max..pcs_max)
           end
 
         # stop数（packages_total を 1..10 で割れる範囲 & pieces_total を 1..20 で割れる範囲）
@@ -186,9 +188,9 @@ namespace :demo do
 
         stop_count =
           case kind
-          when :heavy then [ rand(10..18), min_stops ].max
-          when :light then [ rand(6..10),  min_stops ].max
-          else             [ rand(8..14),  min_stops ].max
+          when :heavy then [rand(10..18), min_stops].max
+          when :light then [rand(6..10),  min_stops].max
+          else             [rand(8..14),  min_stops].max
           end
 
         # 分割（各stop packages 1..10 / pieces 1..20 かつ pieces>=packages）
@@ -227,41 +229,14 @@ namespace :demo do
           end
 
         delivery.update!(finished_at: finished_at, odo_end_km: odo_start + distance_km)
-      end
 
-      puts "  seeded #{date}" if (day_idx % 30).zero?
-    end
+        # ★追加：ScoreSnapshot 作成（odo_end_km 更新後）
+        # 再実行でも「その日の作り直し結果」に合わせたいので、既存があれば削除→作成
+        delivery.score_snapshots.delete_all if delivery.score_snapshots.exists?
 
-    puts "==> Done. created_deliveries=#{created_deliveries} (existing updated too), created_stops=#{created_stops}"
-    puts "==> Login: employee_no=#{employee_no_base}..#{employee_no_base + 6}, password=#{password}"
-  end
+        scores = ScoreCalculator.new(delivery).calculate
+        t_snapshot = delivery.delivery_stops.maximum(:completed_at) || Time.current
 
-  desc "Purge annual demo data created by demo:seed_annual (by prefix + EMPLOYEE_NO_BASE)"
-  task purge_annual: :environment do
-    prefix = ENV.fetch("DEMO_PREFIX", "[DEMO]")
-    employee_no_base = ENV.fetch("EMPLOYEE_NO_BASE", "9001").to_i
-
-    employees = Employee.where(employee_no: employee_no_base..employee_no_base + 6)
-    if employees.none?
-      puts "==> No demo employees found (#{employee_no_base}..#{employee_no_base + 6})"
-      next
-    end
-
-    course_ids = Course.where("name LIKE ?", "#{prefix}%").pluck(:id)
-
-    # deliveries & stops
-    deliveries = Delivery.where(employee_id: employees.select(:id), course_id: course_ids)
-    stop_count = DeliveryStop.where(delivery_id: deliveries.select(:id)).delete_all
-    del_count  = deliveries.delete_all
-
-    # join + masters (demo prefix only)
-    cd_count = CourseDestination.where(course_id: course_ids).delete_all
-    course_count = Course.where(id: course_ids).delete_all
-    vt_count = VehicleType.where("name LIKE ?", "#{prefix}%").delete_all
-    dest_count = Destination.where("name LIKE ?", "#{prefix}%").delete_all
-
-    emp_count = employees.delete_all
-
-    puts "==> Purged. stops=#{stop_count}, deliveries=#{del_count}, course_destinations=#{cd_count}, courses=#{course_count}, vehicle_types=#{vt_count}, destinations=#{dest_count}, employees=#{emp_count}"
-  end
-end
+        ScoreSnapshot.create!(
+          delivery: delivery,
+          work_score: scores[:work],

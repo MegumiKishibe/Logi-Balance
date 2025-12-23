@@ -104,11 +104,13 @@ class DeliveryStopsController < ApplicationController
   end
 
   def save_score_snapshot(delivery)
+    scores = ScoreCalculator.new(delivery).calculate
+
     ScoreSnapshot.create!(
-      delivery_id: delivery.id,
-      work_score: 0,
-      density_score: 0,
-      total_score: 0
+      delivery: delivery,
+      work_score: scores[:work],
+      density_score: (scores[:density] * 100).round,
+      total_score: scores[:total]
     )
   end
 end
