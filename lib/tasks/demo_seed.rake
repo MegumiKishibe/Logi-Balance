@@ -90,23 +90,27 @@ namespace :demo do
     # VehicleType（共通）
     vt = VehicleType.find_or_create_by!(name: "#{prefix} 2t")
 
-    # Drivers 7人（Devise）
+   # Drivers 7人
     employees = (0..6).map do |i|
       no = employee_no_base + i
-      email = "demo#{no}@example.com"
-      Employee.find_by(employee_no: no) ||
-        Employee.find_by(email: email) ||
-        Employee.create!(
-          employee_no: no,
-          last_name_ja: "デモ",
-          first_name_ja: "運転手#{i + 1}",
-          last_name_en: "Demo",
-          first_name_en: "Driver#{i + 1}",
-          hired_on: start_date,
-          email: email,
-          password: password,
-          password_confirmation: password
-        )
+
+      attrs = {
+        employee_no: no,
+        last_name_ja: "デモ",
+        first_name_ja: "運転手#{i + 1}",
+        last_name_en: "Demo",
+        first_name_en: "Driver#{i + 1}",
+        hired_on: start_date,
+        password: password,
+        password_confirmation: password
+      }
+
+      # email カラムがある環境だけ email を入れる（本番は無いので回避できる）
+      if Employee.column_names.include?("email")
+        attrs[:email] = "demo#{no}@example.com"
+      end
+
+      Employee.find_by(employee_no: no) || Employee.create!(attrs)
     end
 
     # Courses 7本 + 各コースの配達先プール（コースごとに40件）
