@@ -240,3 +240,50 @@ namespace :demo do
         ScoreSnapshot.create!(
           delivery: delivery,
           work_score: scores[:work],
+          density_score: (scores[:density] * 100).round,
+          total_score: scores[:total],
+          created_at: t_snapshot,
+          updated_at: t_snapshot
+        )
+        created_snapshots += 1
+      end
+
+      puts "  seeded #{date}" if (day_idx % 30).zero?
+    end
+
+    puts "==> Done. created_deliveries=#{created_deliveries} (existing updated too), created_stops=#{created_stops}, created_snapshots=#{created_snapshots}"
+    puts "==> Login: employee_no=#{employee_no_base}..#{employee_no_base + 6}, password=#{password}"
+  end
+
+  desc "Purge annual demo data created by demo:seed_annual (by prefix + EMPLOYEE_NO_BASE)"
+  task purge_annual: :environment do
+    prefix = ENV.fetch("DEMO_PREFIX", "[DEMO]")
+    employee_no_base = ENV.fetch("EMPLOYEE_NO_BASE", "9001").to_i
+
+    employees = Employee.where(employee_no: employee_no_base..employee_no_base + 6)
+    if employees.none?
+      puts "==> No demo employees found (#{employee_no_base}..#{employee_no_base + 6})"
+      next
+    end
+
+    course_ids = Course.where("name LIKE ?", "#{prefix}%").pluck(:id)
+
+    # deliveries & stops
+    deliveries = Delivery.where(employee_id: employees.select(:id), course_id: course_ids)
+    stop_count = DeliveryStop.where(delivery_id: deliveries.select(:id)).delete_all
+    del_count  = deliveries.delete_all
+
+    # ★追加：snapshots も消す（デモだけ）
+    ss_count = ScoreSnapshot.where(delivery_id: deliveries.select(:id)).delete_all
+
+    # join + masters (demo prefix only)
+    cd_count = CourseDestination.where(course_id: course_ids).delete_all
+    course_count = Course.where(id: course_ids).delete_all
+    vt_count = VehicleType.where("name LIKE ?", "#{prefix}%").delete_all
+    dest_count = Destination.where("name LIKE ?", "#{prefix}%").delete_all
+
+    emp_count = employees.delete_all
+
+    puts "==> Purged. snapshots=#{ss_count}, stops=#{stop_count}, deliveries=#{del_count}, course_destinations=#{cd_count}, courses=#{course_count}, vehicle_types=#{vt_count}, destinations=#{dest_count}, employees=#{emp_count}"
+  end
+end
