@@ -1,5 +1,5 @@
 class SettingsController < ApplicationController
-  # 設定トップ（使わないなら空のままでOK）
+  # 設定トップ画面
   def index
   end
 
@@ -13,6 +13,7 @@ class SettingsController < ApplicationController
       @selected_employee = Employee.new(id: 0) # フォームを空状態にする
     end
   end
+
   # 配達先
   def destination
     @destinations = Destination.all.order(:name)
@@ -34,16 +35,10 @@ class SettingsController < ApplicationController
     end
   end
 
-  private
-
-  def destination_params
-    params.require(:destination).permit(:name, :address, :id)
-  end
-
-
   # Confirm ボタン → 更新
+  # ※ここが private の下にあると ActionNotFound(404) になるので、private より上に置く
   def update_driver
-    employee = Employee.find(params[:employee][:id])  # ★ここが超重要！！
+    employee = Employee.find(params[:employee][:id]) # ★ id を使って取得する
 
     if employee.update(employee_params)
       redirect_to driver_settings_path, notice: "ドライバー情報を更新しました。"
@@ -53,6 +48,10 @@ class SettingsController < ApplicationController
   end
 
   private
+
+  def destination_params
+    params.require(:destination).permit(:name, :address, :id)
+  end
 
   def employee_params
     params.require(:employee).permit(
