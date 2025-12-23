@@ -30,7 +30,7 @@ class ScoreCalculator
 
   def calculate_density
     stops_count = @stops.count
-    distance_km = (@delivery.odo_end_km - @delivery.odo_start_km).to_f
+    distance_km = (@delivery.odo_end_km.to_f - @delivery.odo_start_km.to_f)
 
     # ★ zero division 対策
     km_per_stop =

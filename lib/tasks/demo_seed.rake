@@ -53,7 +53,7 @@ namespace :demo do
   task seed_annual: :environment do
     # 期間（指定がなければユーザー希望の1年）
     start_date = parse_date!(ENV.fetch("START_DATE", "2024-12-01"))
-    end_date   = parse_date!(ENV.fetch("END_DATE",   "2025-11-30"))
+    end_date   = parse_date!(ENV.fetch("END_DATE", "2025-11-30"))
     raise "START_DATE must be <= END_DATE" if start_date > end_date
 
     prefix = ENV.fetch("DEMO_PREFIX", "[DEMO]")
@@ -67,9 +67,9 @@ namespace :demo do
     pcs_max = ENV.fetch("PCS_MAX", "100").to_i
 
     # 重い/軽いの「寄せ方」
-    heavy_pkg_range = (pkg_max - 5..pkg_max)    # 45..50
+    heavy_pkg_range = (pkg_max - 5..pkg_max) # 45..50
     heavy_pcs_range = ([ pcs_max - 10, pcs_min ].max..pcs_max) # 90..100
-    light_pkg_range = (pkg_min..[ pkg_min + 5, pkg_max ].min)  # 20..25
+    light_pkg_range = (pkg_min..[ pkg_min + 5, pkg_max ].min) # 20..25
     light_pcs_range = (pcs_min..[ pcs_min + 15, pcs_max ].min) # 20..35
 
     # コース7本（2 heavy / 2 light / 3 random）
@@ -90,7 +90,7 @@ namespace :demo do
     # VehicleType（共通）
     vt = VehicleType.find_or_create_by!(name: "#{prefix} 2t")
 
-   # Drivers 7人
+    # Drivers 7人
     employees = (0..6).map do |i|
       no = employee_no_base + i
 
@@ -130,6 +130,7 @@ namespace :demo do
     # 1年分作成（1日=7 delivery）
     created_deliveries = 0
     created_stops = 0
+    created_snapshots = 0
 
     (start_date..end_date).each_with_index do |date, day_idx|
       courses.each_with_index do |course, ci|
@@ -143,6 +144,7 @@ namespace :demo do
 
         if delivery
           delivery.delivery_stops.delete_all
+          delivery.score_snapshots.delete_all # ★追加：作り直し時は snapshot も削除
           delivery.update!(
             started_at: started_at,
             odo_start_km: odo_start,
@@ -227,12 +229,29 @@ namespace :demo do
           end
 
         delivery.update!(finished_at: finished_at, odo_end_km: odo_start + distance_km)
+
+        # ★追加：ScoreSnapshot 作成（odo_end_km 更新後）
+        # 再実行でも「その日の作り直し結果」に合わせたいので、既存があれば削除→作成
+        delivery.score_snapshots.delete_all if delivery.score_snapshots.exists?
+
+        scores = ScoreCalculator.new(delivery).calculate
+        t_snapshot = delivery.delivery_stops.maximum(:completed_at) || Time.current
+
+        ScoreSnapshot.create!(
+          delivery: delivery,
+          work_score: scores[:work],
+          density_score: (scores[:density] * 100).round,
+          total_score: scores[:total],
+          created_at: t_snapshot,
+          updated_at: t_snapshot
+        )
+        created_snapshots += 1
       end
 
       puts "  seeded #{date}" if (day_idx % 30).zero?
     end
 
-    puts "==> Done. created_deliveries=#{created_deliveries} (existing updated too), created_stops=#{created_stops}"
+    puts "==> Done. created_deliveries=#{created_deliveries} (existing updated too), created_stops=#{created_stops}, created_snapshots=#{created_snapshots}"
     puts "==> Login: employee_no=#{employee_no_base}..#{employee_no_base + 6}, password=#{password}"
   end
 
@@ -254,6 +273,9 @@ namespace :demo do
     stop_count = DeliveryStop.where(delivery_id: deliveries.select(:id)).delete_all
     del_count  = deliveries.delete_all
 
+    # ★追加：snapshots も消す（デモだけ）
+    ss_count = ScoreSnapshot.where(delivery_id: deliveries.select(:id)).delete_all
+
     # join + masters (demo prefix only)
     cd_count = CourseDestination.where(course_id: course_ids).delete_all
     course_count = Course.where(id: course_ids).delete_all
@@ -262,6 +284,6 @@ namespace :demo do
 
     emp_count = employees.delete_all
 
-    puts "==> Purged. stops=#{stop_count}, deliveries=#{del_count}, course_destinations=#{cd_count}, courses=#{course_count}, vehicle_types=#{vt_count}, destinations=#{dest_count}, employees=#{emp_count}"
+    puts "==> Purged. snapshots=#{ss_count}, stops=#{stop_count}, deliveries=#{del_count}, course_destinations=#{cd_count}, courses=#{course_count}, vehicle_types=#{vt_count}, destinations=#{dest_count}, employees=#{emp_count}"
   end
 end
