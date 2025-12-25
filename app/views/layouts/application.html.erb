@@ -21,18 +21,18 @@
 
   <body data-turbo="false">
     <% if notice.present? %>
-      <p class="notice" style="color: green; text-align: center; margin-top: 10px; position: absolute; width: 100%; z-index: 10;">
+      <div class="flash-message flash-notice">
         <%= notice %>
-      </p>
+      </div>
     <% end %>
 
     <% if alert.present? %>
-      <p class="alert" style="color: red; text-align: center; margin-top: 10px; position: absolute; width: 100%; z-index: 10;">
+      <div class="flash-message flash-alert">
         <%= alert %>
-      </p>
+      </div>
     <% end %>
 
-<% unless controller_name == "sessions" && action_name == "new" %>
+    <% unless controller_name == "sessions" && action_name == "new" %>
       <div class="layout-container">
 
         <div class="sidebar-wrapper">
