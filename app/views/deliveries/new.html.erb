@@ -1,23 +1,30 @@
-<h1>Course</h1>
+<div class="course-container">
+  <h1>Course</h1>
 
-<%= form_with scope: :delivery, url: deliveries_path, method: :post, local: true do |form| %>
-  <div style="margin-bottom: 1rem;">
-    <%= form.label :odo_start_km, "開始指針（オドメーター）：" %><br>
-    <%= form.number_field :odo_start_km, min: 0, required: true %>
+  <%= form_with scope: :delivery, url: deliveries_path, method: :post, local: true, class: "delivery-form" do |form| %>
+    <div class="form-group">
+      <%= form.label :odo_start_km, "開始指針（オドメーター）", class: "form-label" %>
+      <%= form.number_field :odo_start_km, min: 0, required: true, placeholder: "00000" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :course_id, "走行コース", class: "form-label" %>
+      <div class="select-wrapper">
+        <%= form.collection_select :course_id, Course.all, :id, :name, { prompt: "コースを選択" } %>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit "Start Delivery", class: "btn-primary" %>
+    </div>
+  <% end %>
+
+  <div class="danger-zone">
+    <%= button_to destroy_employee_session_path,
+                  method: :delete,
+                  form: { data: { turbo: false, turbo_confirm: "ログアウトしますか？" } },
+                  class: "logout-button" do %>
+      Logout Account
+    <% end %>
   </div>
-
-  <div>
-    <%= form.collection_select :course_id, Course.all, :id, :name, prompt: "コースを選択" %>
-  </div>
-
-  <div>
-    <%= form.submit "Start", class: "btn btn-primary" %>
-  </div>
-<% end %>
-
-<%= button_to destroy_employee_session_path,
-              method: :delete,
-              form: { data: { turbo: false, turbo_confirm: "ログアウトしますか？" } },
-              class: "logout-button" do %>
-  ログアウト
-<% end %>
+</div>
