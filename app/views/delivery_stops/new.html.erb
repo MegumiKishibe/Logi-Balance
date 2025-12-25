@@ -1,15 +1,5 @@
 <div class="container">
-  <!-- <meta name="turbo-visit-control" content="reload"> -->
   <input type="hidden" id="delivery-id" value="<%= @delivery.id %>">
-
-  <script>
-    window.currentDeliveryId = <%= @delivery.id %>;
-  </script>
-
-  <div class="header">
-    <h1>Welcome back!</h1>
-    <h2 lang="ja"><%= current_employee.last_name_ja %> さん</h2>
-  </div>
 
   <div class="title-group">
     <div class="title">
@@ -22,28 +12,26 @@
   </div>
 
   <%= form_with url: delivery_stops_path, method: :post, local: true do |form| %>
-    <div class="form-group">
-
-    <div class="field-row destinations">
-      <%= form.label :destination_id, "配達先：", for: "select-destinations" %>
-      <%= form.collection_select :destination_id, @delivery.course.destinations, :id, :name, { prompt: "選択してください" },
-                                class: "form-select select-30", id: "select-destinations", required: true %>
+    <div class="field-row">
+      <%= form.label :destination_id, "配達先：" %>
+      <%= form.collection_select :destination_id, @delivery.course.destinations, :id, :name, { prompt: "選択してください" }, id: "select-destinations", required: true %>
     </div>
 
-    <div class="field-row packages">
-      <%= form.label :packages_count, "件数：", for: "select-packages" %>
-      <%= form.number_field :packages_count, min: 1, max: 10, required: true, id: "select-packages", class: "form-select select-30" %>
+    <div class="field-row">
+      <%= form.label :packages_count, "件数：" %>
+      <%= form.number_field :packages_count, min: 1, max: 10, required: true, id: "select-packages" %>
     </div>
 
-    <div class="field-row pieces-count">
-      <%= form.label :pieces_count, "個数：", for: "select-pieces" %>
-      <%= form.number_field :pieces_count, min: 1, max: 20, required: true, id: "select-pieces", class: "form-select select-30" %>
+    <div class="field-row">
+      <%= form.label :pieces_count, "個数：" %>
+      <%= form.number_field :pieces_count, min: 1, max: 20, required: true, id: "select-pieces" %>
+    </div>
+
+    <div class="button-group" style="margin-left: 116px; margin-top: 20px;">
+      <button id="button-add" type="button" class="btn btn-secondary" style="padding: 8px 24px;">Add</button>
+      <%= link_to "新規配達先登録", new_destination_path, style: "margin-left: 15px; color: #6abf69; text-decoration: none; font-size: 0.9rem;" %>
     </div>
   <% end %>
-  
-  <div class="button-group">
-    <button id="button-add" type="button" data-turbo="false" class="button">Add</button>
-    <%= link_to "新規配達先登録", new_destination_path, class: "button" %>
   </div>
 
   <div class="list-box">
@@ -57,21 +45,21 @@
     <ul id="list">
       <% @delivery_stops.each do |stop| %>
         <li data-id="<%= stop.id %>">
-          <span><%= stop.destination.name %>：<%= stop.packages_count %>件／<%= stop.pieces_count %>個</span>
-          <button class="delete-btn" data-turbo="false">削除</button>
-          <button class="done-btn"   data-turbo="false">完了</button>
+          <span style="flex: 1;"><%= stop.destination.name %>：<%= stop.packages_count %>件／<%= stop.pieces_count %>個</span>
+          <button class="btn-secondary" style="padding: 4px 12px; font-size: 0.8rem;" data-turbo="false">削除</button>
+          <button class="btn-primary" style="padding: 4px 12px; font-size: 0.8rem; background-color: #8dbb8d;" data-turbo="false">完了</button>
         </li>
       <% end %>
     </ul>
   </div>
 
-  <div class="nav-button-group">
+  <div class="nav-button-group" style="margin-top: 50px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px;">
     <%= link_to "戻る", delivery_path(@delivery), class: "btn btn-secondary" %>
-    <%= form_with model: @delivery, url: finish_delivery_path(@delivery), method: :patch, local: true do |f| %>
-    <%= f.label :odo_end_km, "終了指針" %>
-    <%= f.number_field :odo_end_km, required: true, min: 0, step: 1, class: "form-control", style: "width: 160px; display:inline-block;" %>
-    <%= f.submit "一覧へ", class: "btn btn-primary" %>
-  <% end %>
-
+    
+    <%= form_with model: @delivery, url: finish_delivery_path(@delivery), method: :patch, local: true, style: "display: flex; align-items: center; gap: 12px;" do |f| %>
+      <%= f.label :odo_end_km, "終了指針", style: "font-size: 0.9rem; color: #666;" %>
+      <%= f.number_field :odo_end_km, required: true, min: 0, step: 1, style: "width: 120px;" %>
+      <%= f.submit "一覧へ", class: "btn btn-primary" %>
+    <% end %>
   </div>
 </div>

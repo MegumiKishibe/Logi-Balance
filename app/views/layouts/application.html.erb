@@ -7,7 +7,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&family=Noto+Sans+JP:wght@100;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <%= yield :head %>
 
     <link rel="icon" href="/icon.png" type="image/png">
@@ -20,42 +21,42 @@
 
   <body data-turbo="false">
     <% if notice.present? %>
-      <p class="notice" style="color: green; text-align: center; margin-top: 10px;">
+      <p class="notice" style="color: green; text-align: center; margin-top: 10px; position: absolute; width: 100%; z-index: 10;">
         <%= notice %>
       </p>
     <% end %>
 
     <% if alert.present? %>
-      <p class="alert" style="color: red; text-align: center; margin-top: 10px;">
+      <p class="alert" style="color: red; text-align: center; margin-top: 10px; position: absolute; width: 100%; z-index: 10;">
         <%= alert %>
       </p>
     <% end %>
 
-    <% unless controller_name == "sessions" && action_name == "new" %>
+<% unless controller_name == "sessions" && action_name == "new" %>
       <div class="layout-container">
-        <!-- サイドバー -->
-        <%= render "shared/sidebar" %>
 
-        <!-- メイン領域 -->
-        <div class="layout-main">
-          <div class="layout-header">
-            <div class="sidebar-logo">
-              <span class="logo-dot"></span>
-              <span class="logo-text">logi-balance</span>
-            </div>
+        <div class="sidebar-wrapper">
+          <div class="sidebar-logo">
+            <span class="logo-dot"></span>
+            <span class="logo-text">logi-balance</span>
+          </div>
+          <%= render "shared/sidebar" %>
+        </div>
 
+        <div class="layout-content-wrapper">
+          <header class="layout-header">
             <div class="welcome-message">
               Welcome back <%= current_employee&.last_name_en || "Guest" %>!
             </div>
-          </div>
+          </header>
 
-          <main class="main">
+          <main class="layout-main-box">
             <%= yield %>
           </main>
         </div>
+
       </div>
     <% else %>
-      <!-- ログイン画面など（sessions#new）は通常通り表示）-->
       <%= yield %>
     <% end %>
   </body>

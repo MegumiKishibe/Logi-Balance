@@ -9,14 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const buttonAdd = document.getElementById("button-add");
   const list = document.getElementById("list");
   const selectDestinations = document.getElementById("select-destinations");
-  const inputPackages = document.getElementById("select-packages"); // number_field
-  const inputPieces = document.getElementById("select-pieces"); // number_field
+  const inputPackages = document.getElementById("select-packages");
+  const inputPieces = document.getElementById("select-pieces");
 
-  const deliveryId =
-    window.currentDeliveryId || document.getElementById("delivery-id")?.value;
-
+  const deliveryId = window.currentDeliveryId || document.getElementById("delivery-id")?.value;
   const csrfToken = document.querySelector("[name='csrf-token']")?.content;
 
+  // 元のコード通りの厳格な要素チェック
   if (!buttonAdd || !list || !selectDestinations || !inputPackages || !inputPieces) {
     console.warn("delivery_stops.js: required elements not found. stop.");
     return;
@@ -31,54 +30,34 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --------------------------
-  // Helpers
+  // Helpers (元のロジックを完全維持)
   // --------------------------
   const formatJaNow = () =>
     new Date().toLocaleString("ja-JP", {
       timeZone: "Asia/Tokyo",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit",
     });
 
-  // completed_at が
-  // - ISO("2025-12-22T20:32:45.652+09:00") → 整形
-  // - "YYYY/MM/DD HH:MM" → そのまま返す
   const normalizeCompletedAtText = (value) => {
     if (!value) return null;
     if (typeof value !== "string") return null;
-
-    // すでに整形済みっぽい（Tを含まない）ならそのまま
     if (!value.includes("T")) return value;
-
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return value;
-
     return d.toLocaleString("ja-JP", {
-      timeZone: "Asia/Tokyo",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
+      timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
     });
   };
 
   const insertDoneAt = (li, textSpan, completedAtText) => {
-    // li全体で重複防止（どこに入ってても1個にする）
     if (li.querySelector(".done-at")) return;
-
     const ts = document.createElement("span");
     ts.className = "done-at";
     ts.style.marginLeft = "8px";
-    ts.style.textDecoration = "none"; // 打消し線の影響を避けたい時
-
-    const text = completedAtText || formatJaNow(); // ★必ず何か入る
+    ts.style.textDecoration = "none";
+    const text = completedAtText || formatJaNow();
     ts.textContent = `（${text}）`;
-
-    // ★見えやすい：テキストの直後に入れる
     if (textSpan) {
       textSpan.insertAdjacentElement("afterend", ts);
     } else {
@@ -87,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // --------------------------
-  // Enhance existing LI (no button duplication)
+  // Enhance existing LI
   // --------------------------
   const enhanceListItem = (li) => {
     if (!li || li.dataset.enhanced === "true") return;
@@ -100,25 +79,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const deleteBtn = li.querySelector(".delete-btn");
     const doneBtn = li.querySelector(".done-btn");
 
-    // ---- Delete ----
     if (deleteBtn) {
       deleteBtn.type = "button";
       deleteBtn.setAttribute("data-turbo", "false");
-
       deleteBtn.addEventListener("click", async (event) => {
         event.preventDefault();
         if (!confirm("本当に削除しますか？")) return;
-
         try {
           const res = await fetch(`/delivery_stops/${id}`, {
             method: "DELETE",
-            headers: {
-              "X-CSRF-Token": csrfToken,
-              "Accept": "application/json",
-              "X-Requested-With": "XMLHttpRequest",
-            },
+            headers: { "X-CSRF-Token": csrfToken, "Accept": "application/json", "X-Requested-With": "XMLHttpRequest" },
           });
-
           if (!res.ok) {
             console.error("DELETE failed:", res.status);
             alert("削除に失敗しました。もう一度お試しください。");
@@ -132,40 +103,26 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // ---- Complete ----
     if (doneBtn) {
       doneBtn.type = "button";
       doneBtn.setAttribute("data-turbo", "false");
-
       doneBtn.addEventListener("click", async (event) => {
         event.preventDefault();
         if (!confirm("この荷物を完了にしますか？")) return;
-
         try {
           const res = await fetch(`/delivery_stops/${id}/complete`, {
             method: "PATCH",
-            headers: {
-              "X-CSRF-Token": csrfToken,
-              "Accept": "application/json",
-              "X-Requested-With": "XMLHttpRequest",
-            },
+            headers: { "X-CSRF-Token": csrfToken, "Accept": "application/json", "X-Requested-With": "XMLHttpRequest" },
           });
-
           if (!res.ok) {
             console.error("PATCH complete failed:", res.status);
             alert("完了にできませんでした。もう一度お試しください。");
             return;
           }
-
           const data = await res.json().catch(() => ({}));
-          console.log("✅ complete response:", data);
-
-          // UI update
           if (textSpan) textSpan.style.textDecoration = "line-through";
           doneBtn.textContent = "完了済み";
           doneBtn.disabled = true;
-
-          // ★timestamp
           const completedAtText = normalizeCompletedAtText(data?.completed_at);
           insertDoneAt(li, textSpan, completedAtText);
         } catch (e) {
@@ -176,27 +133,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // 既存行に付与
   document.querySelectorAll("#list li").forEach((li) => enhanceListItem(li));
 
   // --------------------------
-  // Build LI for newly added items
+  // Build LI (デザイン用のクラスを追加)
   // --------------------------
   const buildListItem = ({ id, labelText }) => {
     const li = document.createElement("li");
     li.dataset.id = String(id);
 
     const span = document.createElement("span");
+    span.style.flex = "1";
     span.textContent = labelText;
 
     const deleteBtn = document.createElement("button");
-    deleteBtn.className = "delete-btn";
+    deleteBtn.className = "btn btn-secondary delete-btn"; // クラス追加
+    deleteBtn.style.cssText = "padding: 4px 12px; font-size: 0.8rem; margin-left: auto;";
     deleteBtn.textContent = "削除";
     deleteBtn.type = "button";
     deleteBtn.setAttribute("data-turbo", "false");
 
     const doneBtn = document.createElement("button");
-    doneBtn.className = "done-btn";
+    doneBtn.className = "btn btn-primary done-btn"; // クラス追加
+    doneBtn.style.cssText = "padding: 4px 12px; font-size: 0.8rem; background-color: #8dbb8d;";
     doneBtn.textContent = "完了";
     doneBtn.type = "button";
     doneBtn.setAttribute("data-turbo", "false");
@@ -210,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // --------------------------
-  // Add button (POST create)
+  // Add button (元のクローン処理を維持)
   // --------------------------
   buttonAdd.replaceWith(buttonAdd.cloneNode(true));
   const newButtonAdd = document.getElementById("button-add");
@@ -219,9 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
 
     const destinationId = selectDestinations.value;
-    const destinationName =
-      selectDestinations.options[selectDestinations.selectedIndex]?.text;
-
+    const destinationName = selectDestinations.options[selectDestinations.selectedIndex]?.text;
     const packages = inputPackages.value;
     const pieces = inputPieces.value;
 
@@ -264,7 +221,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       list.appendChild(buildListItem({ id: data.id, labelText }));
 
-      // reset
       inputPackages.value = "";
       inputPieces.value = "";
       selectDestinations.selectedIndex = 0;

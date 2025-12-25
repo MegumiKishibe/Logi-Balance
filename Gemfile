@@ -59,4 +59,3 @@ gem "chartkick"
 gem "groupdate"
 gem "devise"
 gem "kaminari"
-

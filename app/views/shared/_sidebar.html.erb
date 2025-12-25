@@ -1,44 +1,41 @@
-<div class="sidebar-wrapper">
-  <!-- サイドバー本体 -->
-  <nav class="sidebar">
-    <ul class="sidebar-menu">
-      <li class="<%= 'active' if controller_name == 'deliveries' %>">
-        <%= link_to new_delivery_path do %>
-          <i class="icon">🚚</i>
-          <span>Courses</span>
-        <% end %>
-      </li>
+<nav class="sidebar">
+  <ul class="sidebar-menu">
+    <li class="<%= 'active' if controller_name == 'deliveries' %>">
+      <%= link_to new_delivery_path do %>
+        <span class="material-symbols-outlined icon">local_shipping</span>
+        <span>Courses</span>
+      <% end %>
+    </li>
 
-      <li class="<%= 'active' if controller_name == 'dashboard' %>">
-        <%= link_to courses_dashboard_index_path do %>
-          <i class="icon">📋</i>
-          <span>Dashboard</span>
-        <% end %>
-      </li>
+    <li class="<%= 'active' if controller_name == 'dashboard' %>">
+      <%= link_to courses_dashboard_index_path do %>
+        <span class="material-symbols-outlined icon">assignment</span>
+        <span>Dashboard</span>
+      <% end %>
+    </li>
 
-      <li class="<%= 'active' if controller_name == 'analytics' %>">
-        <%= link_to analytics_path do %>
-          <i class="icon">📈</i>
-          <span>Analytics</span>
-        <% end %>
-      </li>
+    <li class="<%= 'active' if controller_name == 'analytics' %>">
+      <%= link_to analytics_path do %>
+        <span class="material-symbols-outlined icon">monitoring</span>
+        <span>Analytics</span>
+      <% end %>
+    </li>
 
-      <li class="<%= 'active' if controller_name == 'settings' %>">
-        <%= link_to settings_path do %>
-          <i class="icon">⚙️</i>
-          <span>Setting</span>
-        <% end %>
-      </li>
+    <li class="<%= 'active' if controller_name == 'settings' %>">
+      <%= link_to settings_path do %>
+        <span class="material-symbols-outlined icon">settings</span>
+        <span>Setting</span>
+      <% end %>
+    </li>
 
-      <li>
-        <%= button_to destroy_employee_session_path,
-                      method: :delete,
-                      form: { data: { turbo: false, turbo_confirm: "ログアウトしますか？" } },
-                      class: "logout-button" do %>
-          <i class="icon">↩️</i>
-          <span>ログアウト</span>
-        <% end %>
-      </li>
-    </ul>
-  </nav>
-</div>
+    <li class="logout-item">
+      <%= button_to destroy_employee_session_path,
+                    method: :delete,
+                    form: { data: { turbo: false, turbo_confirm: "ログアウトしますか？" } },
+                    class: "logout-link" do %>
+        <span class="material-symbols-outlined icon">logout</span>
+        <span>Logout</span>
+      <% end %>
+    </li>
+  </ul>
+</nav>
