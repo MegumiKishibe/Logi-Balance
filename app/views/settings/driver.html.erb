@@ -1,63 +1,75 @@
-<h2>Driver Settings</h2>
-
-<!-- 1. ドライバー選択プルダウン -->
-<%= form_with url: driver_settings_path, method: :get, local: true do %>
-  <div>
-    <label>ドライバーを選択</label>
-    <%= select_tag :employee_id,
-          options_from_collection_for_select(@employees, :id,
-                                             ->(e) { "#{e.last_name_ja} #{e.first_name_ja}" },
-                                             params[:employee_id]),
-          prompt: "Select Driver",
-          onchange: "this.form.submit();" %>
+<div class="title-group">
+  <div class="title">
+    <p2>Driver Settings</p2>
+    <p3>| ドライバー情報編集</p3>
   </div>
-<% end %>
+</div>
 
-<hr>
-
-<!-- 2. ドライバー編集フォーム（空 or 選択後） -->
-<%= form_with model: @selected_employee,
-              url: update_driver_settings_path,
-              method: :post,
-              local: true do |f| %>
-
-  <div>
-    <label>Employee No</label>
-    <%= f.text_field :employee_no %>
+<div class="settings-form-container">
+  <div class="filter-section full-width">
+    <%= form_with url: driver_settings_path, method: :get, local: true, class: "field-row" do %>
+      <label class="form-label">対象者：</label>
+      <div class="select-wrapper">
+        <%= select_tag :employee_id,
+              options_from_collection_for_select(@employees, :id,
+                                                 ->(e) { "#{e.last_name_ja} #{e.first_name_ja}" },
+                                                 params[:employee_id]),
+              prompt: "ドライバーを選択してください",
+              onchange: "this.form.submit();",
+              class: "form-select" %>
+      </div>
+    <% end %>
   </div>
 
-  <div>
-    <label>姓</label>
-    <%= f.text_field :last_name_ja %>
+  <div class="form-card">
+    <%= form_with model: @selected_employee,
+                  url: update_driver_settings_path,
+                  method: :post,
+                  local: true do |f| %>
+      
+      <%= f.hidden_field :id, value: @selected_employee.id %>
+
+      <div class="input-grid">
+        <div class="input-group">
+          <label class="input-label">Employee No</label>
+          <%= f.text_field :employee_no, class: "form-input", placeholder: "0000" %>
+        </div>
+
+        <div class="input-row">
+          <div class="input-group">
+            <label class="input-label">姓</label>
+            <%= f.text_field :last_name_ja, class: "form-input", placeholder: "山田" %>
+          </div>
+          <div class="input-group">
+            <label class="input-label">名</label>
+            <%= f.text_field :first_name_ja, class: "form-input", placeholder: "太郎" %>
+          </div>
+        </div>
+
+        <div class="input-row">
+          <div class="input-group">
+            <label class="input-label">Last Name (EN)</label>
+            <%= f.text_field :last_name_en, class: "form-input", placeholder: "Yamada" %>
+          </div>
+          <div class="input-group">
+            <label class="input-label">First Name (EN)</label>
+            <%= f.text_field :first_name_en, class: "form-input", placeholder: "Taro" %>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Hired On (入社日)</label>
+          <%= f.date_field :hired_on, class: "form-input" %>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "変更を保存する", class: "btn btn-primary btn-wide" %>
+      </div>
+    <% end %>
   </div>
+</div>
 
-  <div>
-    <label>名</label>
-    <%= f.text_field :first_name_ja %>
-  </div>
-
-  <div>
-    <label>Last Name (EN)</label>
-    <%= f.text_field :last_name_en %>
-  </div>
-
-  <div>
-    <label>First Name (EN)</label>
-    <%= f.text_field :first_name_en %>
-  </div>
-
-  <div>
-    <label>Hired On</label>
-    <%= f.date_field :hired_on %>
-  </div>
-
-  <%= f.hidden_field :id, value: @selected_employee.id %>
-
-  <div style="margin-top:16px;">
-    <%= f.submit "Confirm", class: "btn btn-primary" %>
-  </div>
-
-<% end %>
-<br>
-
-<%= link_to "戻る", settings_path, class: "btn btn-secondary" %>
+<div class="nav-button-group">
+  <%= link_to "設定メニューへ戻る", settings_path, class: "btn btn-secondary" %>
+</div>
