@@ -1,21 +1,37 @@
-<h1>Analytics - 月次推移</h1>
+<div class="title-group">
+  <div class="title">
+    <p2>Analytics</p2>
+    <p3>| 月次負荷ポイント推移</p3>
+  </div>
+</div>
 
-<nav class="analytics-tabs">
-  <%= link_to "単日", analytics_path, class: "tab" %>
-  <%= link_to "週次", weekly_analytics_path, class: "tab" %>
-  <%= link_to "月次", monthly_analytics_path, class: "tab active" %>
-</nav>
+<div class="dashboard-tabs">
+  <%= link_to "単日", analytics_path, class: "dash-tab #{action_name == 'index' ? 'active' : ''}" %>
+  <%= link_to "週次", weekly_analytics_path, class: "dash-tab #{action_name == 'weekly' ? 'active' : ''}" %>
+  <%= link_to "月次", monthly_analytics_path, class: "dash-tab #{action_name == 'monthly' ? 'active' : ''}" %>
+</div>
 
-<!-- ▼ 月選択プルダウン -->
-<%= form_with url: monthly_analytics_path, method: :get, local: true do %>
-  <label>月：</label>
+<div class="filter-section">
+  <%= form_with url: monthly_analytics_path, method: :get, local: true, class: "field-row" do %>
+    <label class="form-label">表示月：</label>
+    <div class="select-wrapper">
+      <%= select_tag :month,
+            options_for_select(@months.map { |m| [m.strftime("%Y年%m月"), m] }, @month),
+            onchange: "this.form.submit()",
+            class: "form-select" %>
+    </div>
+  <% end %>
+</div>
 
-  <%= select_tag :month,
-    options_for_select(
-      @months.map { |m| [m.strftime("%Y年%m月"), m] },
-      @month
-    ),
-    onchange: "this.form.submit()" %>
-<% end %>
-
-<%= line_chart @monthly_scores %>
+<div class="analytics-chart-panel">
+  <%= line_chart @monthly_scores, 
+        colors: ["#6abf69"], 
+        curve: true, 
+        library: { 
+          backgroundColor: "transparent",
+          scales: {
+            y: { grid: { color: "rgba(0,0,0,0.05)" } },
+            x: { grid: { display: false } }
+          }
+        } %>
+</div>

@@ -1,17 +1,43 @@
-<h1>Analytics - 単日コース別負荷ポイント比較</h1>
+<div class="title-group">
+  <div class="title">
+    <p2>Analytics</p2>
+    <p3>| 単日コース別負荷ポイント比較</p3>
+  </div>
+</div>
 
-<nav class="analytics-tabs">
-  <%= link_to "単日", analytics_path, class: "tab active" %>
-  <%= link_to "週次", weekly_analytics_path, class: "tab" %>
-  <%= link_to "月次", monthly_analytics_path, class: "tab" %>
-</nav>
+<div class="dashboard-tabs">
+  <%# 現在のページ（単日）なら 'active' クラスをつける %>
+  <%= link_to "単日", analytics_path, class: "dash-tab #{action_name == 'index' ? 'active' : ''}" %>
+  <%= link_to "週次", weekly_analytics_path, class: "dash-tab #{action_name == 'weekly' ? 'active' : ''}" %>
+  <%= link_to "月次", monthly_analytics_path, class: "dash-tab #{action_name == 'monthly' ? 'active' : ''}" %>
+</div>
 
-<!-- ▼ 日付選択プルダウン -->
-<%= form_with url: analytics_path, method: :get, local: true do %>
-  <label>日付：</label>
-  <%= select_tag :date,
-        options_for_select(@dates, @date),
-        onchange: "this.form.submit()" %>
-<% end %>
+<div class="filter-section">
+  <%= form_with url: analytics_path, method: :get, local: true, class: "field-row" do %>
+    <label class="form-label">表示日：</label>
+    <div class="select-wrapper">
+      <%= select_tag :date, 
+            options_for_select(@dates, @date), 
+            onchange: "this.form.submit()", 
+            class: "form-select" %>
+    </div>
+  <% end %>
+</div>
 
-<%= column_chart @daily_scores %>
+<div class="analytics-chart-panel">
+  <%= column_chart @daily_scores, 
+        colors: ["#6abf69"], 
+        library: { 
+          backgroundColor: "transparent",
+          plotOptions: { 
+            column: { 
+              borderRadius: 10,
+              dataLabels: { enabled: true }
+            } 
+          },
+          scales: {
+            y: { grid: { color: "rgba(0,0,0,0.05)" }, ticks: { color: "#888" } },
+            x: { grid: { display: false }, ticks: { color: "#888" } }
+          }
+        } %>
+</div>
