@@ -260,3 +260,128 @@ select:has(option[value=""]:checked) { color: #bbb !important; }
   /* backgroundの透明度を少し下げると、より背景に馴染みます */
   background: rgba(255, 255, 255, 0.3); 
 }
+/* ===============================
+   通知メッセージ（フラッシュ）
+=============================== */
+.flash-message {
+  position: fixed;
+  top: 30px; /* 画面の一番上から少し下げる */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000; /* 全ての要素より手前に */
+  padding: 12px 32px;
+  border-radius: 50px;
+  color: white;
+  font-weight: 500;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  min-width: 200px;
+  text-align: center;
+  pointer-events: none; /* 下のボタン操作を邪魔しない */
+
+  /* アニメーション */
+  animation: fadeInOut 4.5s ease-in-out forwards;
+}
+
+/* 成功時（緑） */
+.flash-notice {
+  background: rgba(106, 191, 105, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 警告時（赤） */
+.flash-alert {
+  background: rgba(235, 87, 87, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* フワッと出て、スーッと消える動き */
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -20px); }
+  10% { opacity: 1; transform: translate(-50%, 0); }
+  85% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -20px); visibility: hidden; }
+}
+/* ===============================
+   コース選択画面（タイル表示）
+=============================== */
+
+/* カードを並べるグリッド設定 */
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 画面幅に合わせて自動整列 */
+  gap: 20px;
+  margin-top: 30px;
+}
+
+/* リンク自体の装飾を消す */
+.course-card-link {
+  text-decoration: none !important;
+  color: inherit;
+  display: block;
+}
+
+/* カードのデザイン */
+.course-card {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ホバー時の動き（ホワ〜ンと浮かす） */
+.course-card-link:hover .course-card {
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border-color: rgba(106, 191, 105, 0.4); /* ほんのり緑の縁取り */
+}
+
+/* アイコン部分 */
+.course-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(106, 191, 105, 0.15);
+  color: #6abf69;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* コース名 */
+.course-info {
+  flex: 1;
+}
+
+.course-name {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.course-sub {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* 右側の矢印 */
+.course-arrow {
+  color: #ccc;
+  transition: transform 0.4s ease;
+}
+
+.course-card-link:hover .course-arrow {
+  transform: translateX(5px);
+  color: #6abf69;
+}

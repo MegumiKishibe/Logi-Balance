@@ -1,11 +1,25 @@
-<h1 class="page-title">Dashboard — コース選択</h1>
+<div class="title-group">
+  <div class="title">
+    <p2>Dashboard</p2>
+    <p3>| コース選択</p3>
+  </div>
+</div>
 
-<div class="courses-container">
+<div class="courses-grid">
   <% @courses.each do |course| %>
-    <div class="course-card">
-      <%= link_to dashboard_path(course.id), class: "course-link" do %>
-        <span class="course-name"><%= course.name %></span>
-      <% end %>
-    </div>
+    <%= link_to dashboard_path(course.id), class: "course-card-link" do %>
+      <div class="course-card">
+        <div class="course-icon">
+          <span class="material-symbols-outlined">route</span>
+        </div>
+        <div class="course-info">
+          <span class="course-name"><%= course.name %></span>
+          <span class="course-sub">配送を開始する</span>
+        </div>
+        <div class="course-arrow">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </div>
+      </div>
+    <% end %>
   <% end %>
 </div>
