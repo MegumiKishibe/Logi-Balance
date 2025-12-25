@@ -1,21 +1,25 @@
-<h1>Dashboard - <%= @course.name %> (Daily)</h1>
-<div class="tabs">
-  <%= link_to "ALL（日別）", dashboard_path(@course), class: "tab #{action_name == 'index' ? 'active' : ''}" %>
-  <%= link_to "単日実績", daily_dashboard_path(@course, date: @date), class: "tab #{action_name == 'daily' ? 'active' : ''}" %>
+<div class="title-group">
+  <div class="title">
+    <p2>Dashboard</p2>
+    <p3>| <%= @course.name %> (Daily)</p3>
+  </div>
 </div>
 
-<%# pulldown for date selection %>
-<h2><%= @course.name %> – 単日実績</h2>
+<div class="dashboard-tabs">
+  <%= link_to "ALL（日別）", dashboard_path(@course), class: "dash-tab #{action_name == 'index' ? 'active' : ''}" %>
+  <%= link_to "単日実績", daily_dashboard_path(@course, date: @date), class: "dash-tab #{action_name == 'daily' ? 'active' : ''}" %>
+</div>
 
-<%= form_with url: daily_dashboard_path(@course), method: :get, local: true do %>
-  <div>
-    <label>日付を選択：</label>
-    <%= select_tag :date, options_for_select(@dates, @date), onchange: "this.form.submit()" %>
-  </div>
-<% end %>
+<div class="filter-section">
+  <%= form_with url: daily_dashboard_path(@course), method: :get, local: true, class: "field-row" do %>
+    <label class="form-label">表示日：</label>
+    <div class="select-wrapper">
+      <%= select_tag :date, options_for_select(@dates, @date), onchange: "this.form.submit()", class: "form-select" %>
+    </div>
+  <% end %>
+</div>
 
-
-<table class="table table-striped mt-3">
+<table class="table">
   <thead>
     <tr>
       <th>配達先</th>
@@ -28,45 +32,53 @@
     <% if @stops.present? %>
       <% @stops.each do |stop| %>
         <tr>
-          <td><%= stop.destination.name %></td>
+          <td><strong><%= stop.destination.name %></strong></td>
           <td><%= stop.packages_count %> 件</td>
           <td><%= stop.pieces_count %> 個</td>
-          <td><%= stop.completed_at&.in_time_zone("Asia/Tokyo").strftime("%H:%M") %></td>
+          <td class="time-highlight"><%= stop.completed_at&.in_time_zone("Asia/Tokyo")&.strftime("%H:%M") %></td>
         </tr>
       <% end %>
     <% else %>
       <tr>
-        <td colspan="4">該当する配達データがありません。</td>
+        <td colspan="4" class="text-center">該当する配達データがありません。</td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
-<h3>TOTAL</h3>
-
-<ul class="summary-list">
-  <li>件数：<%= @stops&.count || 0 %></li>
-  <li>個数：<%= @stops&.sum(:pieces_count) || 0 %></li>
-
-  <li>
-    距離：
-    <% if @delivery.present? %>
-      <%= @delivery.odo_end_km - @delivery.odo_start_km %> km
-    <% else %>
-      -
-    <% end %>
-  </li>
-
-  <li>
-    所要時間：
-    <% if @stops.present? && @stops.first.completed_at && @stops.last.completed_at %>
-      <%= (@stops.last.completed_at - @stops.first.completed_at).to_i / 60 %> 分
-    <% else %>
-      -
-    <% end %>
-  </li>
-  <li>
-    負担ポイント：
-    <%= @delivery.score_snapshots.last&.total_score || "-" %>
-  </li>
-</ul>
+<div class="summary-container">
+  <div class="summary-item">
+    <span class="summary-label">合計件数</span>
+    <span class="summary-value"><%= @stops&.count || 0 %>件</span>
+  </div>
+  <div class="summary-item">
+    <span class="summary-label">合計個数</span>
+    <span class="summary-value"><%= @stops&.sum(:pieces_count) || 0 %>個</span>
+  </div>
+  <div class="summary-item">
+    <span class="summary-label">走行距離</span>
+    <span class="summary-value">
+      <% if @delivery.present? %>
+        <%= @delivery.odo_end_km - @delivery.odo_start_km %>km
+      <% else %>
+        -
+      <% end %>
+    </span>
+  </div>
+  <div class="summary-item">
+    <span class="summary-label">所要時間</span>
+    <span class="summary-value">
+      <% if @stops.present? && @stops.first.completed_at && @stops.last.completed_at %>
+        <%= (@stops.last.completed_at - @stops.first.completed_at).to_i / 60 %>分
+      <% else %>
+        -
+      <% end %>
+    </span>
+  </div>
+  <div class="summary-item">
+    <span class="summary-label">負担ポイント</span>
+    <span class="summary-value">
+      <%= @delivery&.score_snapshots&.last&.total_score || "-" %>
+    </span>
+  </div>
+</div>
