@@ -15,16 +15,7 @@
     </div>
 
     <div class="form-actions">
-      <%= form.submit "Start Delivery", class: "btn-primary" %>
+      <%= form.submit "Start Delivery", class: "btn btn-primary" %>
     </div>
   <% end %>
-
-  <div class="danger-zone">
-    <%= button_to destroy_employee_session_path,
-                  method: :delete,
-                  form: { data: { turbo: false, turbo_confirm: "ログアウトしますか？" } },
-                  class: "logout-button" do %>
-      Logout Account
-    <% end %>
-  </div>
 </div>

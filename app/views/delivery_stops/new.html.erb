@@ -28,8 +28,8 @@
     </div>
 
     <div class="button-group" style="margin-left: 116px; margin-top: 20px;">
-      <button id="button-add" type="button" class="btn btn-secondary" style="padding: 8px 24px;">Add</button>
-      <%= link_to "新規配達先登録", new_destination_path, style: "margin-left: 15px; color: #6abf69; text-decoration: none; font-size: 0.9rem;" %>
+      <button id="button-add" type="button" class="btn btn-secondary">追加</button>
+      <%= link_to "新規配達先登録", new_destination_path, class: "btn btn-secondary", style: "margin-left: 15px;" %>
     </div>
   <% end %>
   </div>
@@ -46,8 +46,8 @@
       <% @delivery_stops.each do |stop| %>
         <li data-id="<%= stop.id %>">
           <span style="flex: 1;"><%= stop.destination.name %>：<%= stop.packages_count %>件／<%= stop.pieces_count %>個</span>
-          <button class="btn-secondary" style="padding: 4px 12px; font-size: 0.8rem;" data-turbo="false">削除</button>
-          <button class="btn-primary" style="padding: 4px 12px; font-size: 0.8rem; background-color: #8dbb8d;" data-turbo="false">完了</button>
+          <button class="btn btn-secondary delete-btn" style="padding: 4px 12px; font-size: 0.8rem;" data-turbo="false">削除</button>
+          <button class="btn btn-primary done-btn" style="padding: 4px 12px; font-size: 0.8rem; background-color: #8dbb8d;" data-turbo="false">完了</button>
         </li>
       <% end %>
     </ul>

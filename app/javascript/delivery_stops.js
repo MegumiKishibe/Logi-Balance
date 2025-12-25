@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const deliveryId = window.currentDeliveryId || document.getElementById("delivery-id")?.value;
   const csrfToken = document.querySelector("[name='csrf-token']")?.content;
 
-  // 元のコード通りの厳格な要素チェック
   if (!buttonAdd || !list || !selectDestinations || !inputPackages || !inputPieces) {
     console.warn("delivery_stops.js: required elements not found. stop.");
     return;
@@ -146,15 +145,19 @@ document.addEventListener("DOMContentLoaded", () => {
     span.style.flex = "1";
     span.textContent = labelText;
 
+    // 削除ボタン
     const deleteBtn = document.createElement("button");
-    deleteBtn.className = "btn btn-secondary delete-btn"; // クラス追加
+    // CSSデザイン用の btn と、JS動作用の delete-btn を両方入れる
+    deleteBtn.className = "btn btn-secondary delete-btn"; 
     deleteBtn.style.cssText = "padding: 4px 12px; font-size: 0.8rem; margin-left: auto;";
     deleteBtn.textContent = "削除";
     deleteBtn.type = "button";
     deleteBtn.setAttribute("data-turbo", "false");
 
+    // 完了ボタン
     const doneBtn = document.createElement("button");
-    doneBtn.className = "btn btn-primary done-btn"; // クラス追加
+    // CSSデザイン用の btn と、JS動作用の done-btn を両方入れる
+    doneBtn.className = "btn btn-primary done-btn"; 
     doneBtn.style.cssText = "padding: 4px 12px; font-size: 0.8rem; background-color: #8dbb8d;";
     doneBtn.textContent = "完了";
     doneBtn.type = "button";
@@ -164,10 +167,9 @@ document.addEventListener("DOMContentLoaded", () => {
     li.appendChild(deleteBtn);
     li.appendChild(doneBtn);
 
-    enhanceListItem(li);
+    enhanceListItem(li); // ここでイベントが登録される
     return li;
   };
-
   // --------------------------
   // Add button (元のクローン処理を維持)
   // --------------------------

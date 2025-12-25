@@ -1,12 +1,8 @@
 <div class="container">
-  <div class="header">
-    <h1>完了済み配達一覧</h1>
-    <h2 lang="ja"><%= current_employee.last_name_ja %> さん</h2>
-  </div>
 
   <div class="title-group">
     <div class="title">
-      <p2>完了時間が早い順</p2>
+      <p2>完了済み配達一覧</p2>
       <p3>| Completed Deliveries</p3>
     </div>
   </div>
@@ -37,23 +33,28 @@
     </tbody>
   </table>
 
-  <div class="mt-3">
-    <p>合計件数：<%= @total_packages %>件</p>
-    <p>合計個数：<%= @total_pieces %>個</p>
-    <p>時間：<%= format_duration(@work_seconds) %></p>
-    <p>指針：<%= @distance_km.present? ? "#{@distance_km}km" : "-" %></p>
+  <div class="summary-container">
+    <div class="summary-item">
+      <span class="summary-label">合計件数</span>
+      <span class="summary-value"><%= @total_packages %>件</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">合計個数</span>
+      <span class="summary-value"><%= @total_pieces %>個</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">所要時間</span>
+      <span class="summary-value"><%= format_duration(@work_seconds) %></span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">走行距離</span>
+      <span class="summary-value"><%= @distance_km.present? ? "#{@distance_km}km" : "-" %></span>
+    </div>
   </div>
 
   <div class="nav-button-group mt-4">
-    <%= link_to "新規登録へ戻る",
+    <%= link_to "荷物登録へ戻る",
                 new_delivery_delivery_stop_path(@delivery || Delivery.order(id: :desc).first),
                 class: "btn btn-primary" %>
-
-    <%= button_to destroy_employee_session_path,
-                  method: :delete,
-                  form: { data: { turbo: false, turbo_confirm: "ログアウトしますか？" } },
-                  class: "logout-button" do %>
-      ログアウト
-    <% end %>
   </div>
 </div>
