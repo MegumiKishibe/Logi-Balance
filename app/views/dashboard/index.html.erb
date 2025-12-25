@@ -1,12 +1,20 @@
-<h1>Dashboard - <%= @course.name %> (ALL)</h1>
-<div class="tabs">
-  <%= link_to "ALL（日別）", dashboard_path(@course), class: "tab #{action_name == 'index' ? 'active' : ''}" %>
-  <%= link_to "単日実績", daily_dashboard_path(@course, date: @dates&.first), class: "tab #{action_name == 'daily' ? 'active' : ''}" %>
+<div class="title-group">
+  <div class="title">
+    <p2>Dashboard</p2>
+    <p3>| <%= @course.name %> (ALL)</p3>
+  </div>
 </div>
 
-<%= paginate @page_dates %>
+<div class="dashboard-tabs">
+  <%= link_to "ALL（日別）", dashboard_path(@course), class: "dash-tab #{action_name == 'index' ? 'active' : ''}" %>
+  <%= link_to "単日実績", daily_dashboard_path(@course, date: @dates&.first), class: "dash-tab #{action_name == 'daily' ? 'active' : ''}" %>
+</div>
 
-<table>
+<div class="pagination-wrapper">
+  <%= paginate @page_dates %>
+</div>
+
+<table class="table">
   <thead>
     <tr>
       <th>日付</th>
@@ -22,23 +30,30 @@
     <% @deliveries.each do |delivery| %>
       <% stops_all = delivery.delivery_stops %>
       <% stops_done = stops_all.where.not(completed_at: nil).order(:completed_at) %>
-
       <tr>
-        <td><%= delivery.service_date %></td>
-        <td><%= stops_all.count %></td>
-        <td><%= stops_all.sum(:pieces_count) %></td>
+        <td><strong><%= delivery.service_date.strftime("%m/%d") %></strong></td>
+        <td><%= stops_all.count %>件</td>
+        <td><%= stops_all.sum(:pieces_count) %>個</td>
         <td><%= delivery.odo_end_km - delivery.odo_start_km %> km</td>
         <td>
           <% if stops_done.present? %>
-            <%= (stops_done.last.completed_at - stops_done.first.completed_at).to_i / 60 %> 分
+            <span class="time-highlight">
+              <%= (stops_done.last.completed_at - stops_done.first.completed_at).to_i / 60 %>分
+            </span>
           <% else %>
-            -
+            <span class="text-muted">-</span>
           <% end %>
         </td>
-        <td><%= delivery.score_snapshots.last&.total_score || "-" %></td>
+        <td>
+          <span class="score-badge">
+            <%= delivery.score_snapshots.last&.total_score || "-" %>
+          </span>
+        </td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
-<%= paginate @page_dates %>
+<div class="pagination-wrapper">
+  <%= paginate @page_dates %>
+</div>

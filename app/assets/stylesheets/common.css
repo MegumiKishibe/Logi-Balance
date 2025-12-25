@@ -385,3 +385,84 @@ select:has(option[value=""]:checked) { color: #bbb !important; }
   transform: translateX(5px);
   color: #6abf69;
 }
+/* ===============================
+   Dashboard：タブ・テーブル微調整
+=============================== */
+
+/* タブ切り替えメニュー */
+.dashboard-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 4px;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.dash-tab {
+  text-decoration: none;
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #777;
+  transition: all 0.3s ease;
+}
+
+.dash-tab.active {
+  background: white;
+  color: #6abf69;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* ページネーションの調整 */
+.pagination-wrapper {
+  margin: 15px 0;
+  font-size: 0.9rem;
+}
+
+/* 所要時間のハイライト */
+.time-highlight {
+  color: #6abf69;
+  font-weight: 600;
+}
+
+/* 負担ポイントのバッジ風デザイン */
+.score-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  font-weight: 500;
+  color: #555;
+}
+
+/* 日付を強調 */
+.table td strong {
+  color: #333;
+}
+/* ===============================
+   Dashboard：単日実績ページの調整
+=============================== */
+
+.filter-section {
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 16px 20px;
+  border-radius: 15px;
+  display: inline-block;
+}
+
+.filter-section label {
+  font-weight: 500;
+  color: #666;
+  margin-right: 10px;
+}
+
+/* テーブル内の文字中央寄せなど */
+.table td.text-center {
+  text-align: center;
+  color: #999;
+  padding: 40px;
+}
