@@ -1,20 +1,42 @@
-<h2>Settings</h2>
-<p>編集したい項目を選んでください。</p>
+<div class="title-group">
+  <div class="title">
+    <p2>Settings</p2>
+    <p3>| アプリ設定</p3>
+  </div>
+</div>
 
-<div class="settings-menu" style="margin-top: 20px;">
-  <ul style="list-style:none; padding:0;">
+<p class="page-description">編集したい項目を選択してください。</p>
 
-    <li style="margin-bottom: 12px;">
-      <%= link_to driver_settings_path, class: "btn btn-primary" do %>
-        🚚 Driver Settings
-      <% end %>
-    </li>
+<div class="settings-grid">
+  <%# ドライバー設定 %>
+  <%= link_to driver_settings_path, class: "setting-card-link" do %>
+    <div class="setting-card">
+      <div class="setting-icon">
+        <span class="material-symbols-outlined">person_pin_circle</span>
+      </div>
+      <div class="setting-info">
+        <span class="setting-title">Driver Settings</span>
+        <span class="setting-sub">ドライバー情報の追加・編集</span>
+      </div>
+      <div class="setting-arrow">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </div>
+    </div>
+  <% end %>
 
-    <li>
-      <%= link_to destination_settings_path, class: "btn btn-primary" do %>
-        📍 Destination Settings
-      <% end %>
-    </li>
-
-  </ul>
+  <%# 配達先設定 %>
+  <%= link_to destination_settings_path, class: "setting-card-link" do %>
+    <div class="setting-card">
+      <div class="setting-icon">
+        <span class="material-symbols-outlined">location_on</span>
+      </div>
+      <div class="setting-info">
+        <span class="setting-title">Destination Settings</span>
+        <span class="setting-sub">配達先・住所の管理</span>
+      </div>
+      <div class="setting-arrow">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </div>
+    </div>
+  <% end %>
 </div>
