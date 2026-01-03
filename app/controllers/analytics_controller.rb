@@ -10,6 +10,12 @@ class AnalyticsController < ApplicationController
       .where(service_date: @date)
       .group("courses.name")
       .sum("score_snapshots.total_score")
+
+    values = @daily_scores.values.map(&:to_f)
+    @avg_value = values.any? ? (values.sum / values.size).round : 0
+
+    max_value = values.max || 0
+    @y_max = (max_value * 1.1).ceil
   end
 
   def weekly
