@@ -50,9 +50,13 @@
     <ul id="list">
       <% @delivery_stops.each do |stop| %>
         <li data-id="<%= stop.id %>">
-          <span style="flex: 1;"><%= stop.destination.name %>：<%= stop.packages_count %>件／<%= stop.pieces_count %>個</span>
-          <button class="btn btn-secondary delete-btn" style="padding: 4px 12px; font-size: 0.8rem;" data-turbo="false">削除</button>
-          <button class="btn btn-primary done-btn" style="padding: 4px 12px; font-size: 0.8rem; background-color: #8dbb8d;" data-turbo="false">完了</button>
+          <span class="stop-info">
+            <%= stop.destination.name %>：<%= stop.packages_count %>件／<%= stop.pieces_count %>個
+          </span>
+          <div class="btn-group-mobile">
+            <button class="btn btn-secondary delete-btn" data-turbo="false">削除</button>
+            <button class="btn btn-primary done-btn" data-turbo="false">完了</button>
+          </div>
         </li>
       <% end %>
     </ul>
