@@ -6,38 +6,43 @@
       <p2>荷物登録</p2>
       <p3>| Package-Registration</p3>
     </div>
-    <div class="course-driver">
-      <p><%= @delivery.course.name %> コース : <%= current_employee.last_name_ja %>D</p>
-    </div>
   </div>
 
-  <%= form_with url: delivery_stops_path, method: :post, local: true do |form| %>
-    <div class="field-row">
-      <%= form.label :destination_id, "配達先：" %>
-      <%= form.collection_select :destination_id, @delivery.course.destinations, :id, :name, { prompt: "選択してください" }, id: "select-destinations", required: true %>
-    </div>
+  <p class="welcome-msg">
+    <%= @delivery.course.name %> コース : <%= current_employee.last_name_ja %>D
+  </p>
 
-    <div class="field-row">
-      <%= form.label :packages_count, "件数：" %>
-      <%= form.number_field :packages_count, min: 1, max: 10, required: true, id: "select-packages" %>
-    </div>
+  <div class="form-card">
+    <%= form_with url: delivery_stops_path, method: :post, local: true do |form| %>
+      <div class="input-grid">
+        <div class="input-group">
+          <label class="input-label">配達先：</label>
+          <div class="select-wrapper">
+            <%= form.collection_select :destination_id, @delivery.course.destinations, :id, :name, { prompt: "選択してください" }, id: "select-destinations", class: "form-select", required: true %>
+          </div>
+        </div>
 
-    <div class="field-row">
-      <%= form.label :pieces_count, "個数：" %>
-      <%= form.number_field :pieces_count, min: 1, max: 20, required: true, id: "select-pieces" %>
-    </div>
+        <div class="input-group">
+          <label class="input-label">件数：</label>
+          <%= form.number_field :packages_count, min: 1, max: 10, required: true, id: "select-packages", class: "form-input", placeholder: "0" %>
+        </div>
 
-    <div class="button-group" style="margin-left: 116px; margin-top: 20px;">
-      <button id="button-add" type="button" class="btn btn-secondary">追加</button>
-      <%= link_to "新規配達先登録", new_destination_path, class: "btn btn-secondary", style: "margin-left: 15px;" %>
-    </div>
-  <% end %>
-  </div>
+        <div class="input-group">
+          <label class="input-label">個数：</label>
+          <%= form.number_field :pieces_count, min: 1, max: 20, required: true, id: "select-pieces", class: "form-input", placeholder: "0" %>
+        </div>
 
-  <div class="list-box">
-    <div class="title-group">
+        <div class="form-actions-center">
+          <button id="button-add" type="button" class="btn btn-secondary btn-wide">追加</button>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="section-divider"></div>
+
+    <div class="title-group small">
       <div class="title">
-        <p2>配達先一覧</p2>
+        <p2 style="font-size: 1.2rem;">配達先一覧</p2>
         <p3>| List of Destinations</p3>
       </div>
     </div>
@@ -53,13 +58,17 @@
     </ul>
   </div>
 
-  <div class="nav-button-group" style="margin-top: 50px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px;">
-    <%= link_to "戻る", delivery_path(@delivery), class: "btn btn-secondary" %>
-    
-    <%= form_with model: @delivery, url: finish_delivery_path(@delivery), method: :patch, local: true, style: "display: flex; align-items: center; gap: 12px;" do |f| %>
-      <%= f.label :odo_end_km, "終了指針", style: "font-size: 0.9rem; color: #666;" %>
-      <%= f.number_field :odo_end_km, required: true, min: 0, step: 1, style: "width: 120px;" %>
-      <%= f.submit "一覧へ", class: "btn btn-primary" %>
+  <div class="bottom-actions-container">
+    <%= form_with model: @delivery, url: finish_delivery_path(@delivery), method: :patch, local: true do |f| %>
+      <div class="input-group end-odometer">
+        <label class="input-label">終了指針</label>
+        <%= f.number_field :odo_end_km, required: true, min: 0, step: 1, class: "form-input", placeholder: "00000" %>
+      </div>
+      
+      <div class="vertical-button-group">
+        <%= f.submit "一覧へ", class: "btn btn-primary btn-wide" %>
+        <%= link_to "戻る", new_delivery_path, class: "btn btn-secondary btn-wide" %>
+      </div>
     <% end %>
   </div>
 </div>
