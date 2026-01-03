@@ -24,14 +24,27 @@
 </div>
 
 <div class="analytics-chart-panel">
-  <%= line_chart @weekly_scores, 
-        colors: ["#6abf69"], 
-        curve: true,
-        library: { 
-          backgroundColor: "transparent",
-          scales: {
-            y: { grid: { color: "rgba(0,0,0,0.05)" } },
-            x: { grid: { display: false } }
+  <%= line_chart @weekly_scores,
+    curve: true,
+    library: {
+      scales: { y: { suggestedMax: @y_max } },
+      plugins: {
+        annotation: {
+          annotations: {
+            aboveAvg: {
+              type: "box",
+              xScaleID: "x",
+              yScaleID: "y",
+              xMin: @range_start,
+              xMax: @range_end,
+              yMin: @avg_value,
+              yMax: @y_max,
+              backgroundColor: "rgba(255, 23, 68, 0.08)",
+              borderWidth: 0,
+              drawTime: "beforeDatasetsDraw"
+            }
           }
-        } %>
+        }
+      }
+    } %>
 </div>

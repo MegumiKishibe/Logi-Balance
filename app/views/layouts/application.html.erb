@@ -7,6 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&family=Noto+Sans+JP:wght@100;300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <%= yield :head %>
@@ -14,6 +15,31 @@
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Date adapter -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- chartjs-plugin-annotation -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <!-- Chartkick -->
+    <script src="https://cdn.jsdelivr.net/npm/chartkick@5.0.1/dist/chartkick.min.js"></script>
+
+    <!-- annotation plugin register -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // chartjs-plugin-annotation は UMD で global に出ます（環境差あり）
+        const plugin =
+          window["chartjs-plugin-annotation"] ||
+          window.ChartAnnotation ||
+          window.annotationPlugin ||
+          null;
+
+        if (window.Chart && plugin) {
+          Chart.register(plugin);
+        }
+      });
+    </script>
 
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
@@ -34,7 +60,6 @@
 
     <% unless controller_name == "sessions" && action_name == "new" %>
       <div class="layout-container">
-
         <div class="sidebar-wrapper">
           <div class="sidebar-logo">
             <span class="logo-dot"></span>
@@ -54,7 +79,6 @@
             <%= yield %>
           </main>
         </div>
-
       </div>
     <% else %>
       <%= yield %>
