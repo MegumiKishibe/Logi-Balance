@@ -16,6 +16,11 @@ pin "delivery_stops", to: "delivery_stops.js"
 pin "chartkick" # @5.0.1
 
 # config/importmap.rb
-pin "chartkick", to: "chartkick.js"
+pin "chartkick" # @5.0.1
 pin "Chart.bundle", to: "Chart.bundle.js"
 pin "@rails/ujs", to: "@rails--ujs.js" # @7.1.3
+pin "chartjs-plugin-annotation" # @3.1.0
+pin "@kurkle/color", to: "@kurkle--color.js" # @0.3.4
+pin "chart.js" # @4.5.1
+pin "chart.js/helpers", to: "chart.js--helpers.js" # @4.5.1
+pin "chart.js/auto", to: "chart.js--auto.js" # @4.5.1

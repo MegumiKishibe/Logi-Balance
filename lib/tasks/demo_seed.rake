@@ -74,13 +74,13 @@ namespace :demo do
 
     # コース7本（2 heavy / 2 light / 3 random）
     course_specs = [
-      { kind: :heavy, name: "#{prefix}[HEAVY] コース1" },
-      { kind: :heavy, name: "#{prefix}[HEAVY] コース2" },
-      { kind: :light, name: "#{prefix}[LIGHT] コース3" },
-      { kind: :light, name: "#{prefix}[LIGHT] コース4" },
-      { kind: :rand,  name: "#{prefix} コース5" },
-      { kind: :rand,  name: "#{prefix} コース6" },
-      { kind: :rand,  name: "#{prefix} コース7" }
+      { kind: :heavy, name: "奈良市北部 2tコース" },
+      { kind: :heavy, name: "橿原・大和高田 2tコース" },
+      { kind: :light, name: "生駒 軽バンコース" },
+      { kind: :light, name: "香芝・王寺 軽バンコース" },
+      { kind: :random, name: "天理コース" },
+      { kind: :random, name: "大和郡山コース" },
+      { kind: :random, name: "奈良市中心コース" }
     ]
 
     puts "==> demo:seed_annual #{start_date}..#{end_date} (#{(end_date - start_date).to_i + 1} days)"
@@ -91,41 +91,72 @@ namespace :demo do
     vt = VehicleType.find_or_create_by!(name: "#{prefix} 2t")
 
     # Drivers 7人
-    employees = (0..6).map do |i|
+    driver_specs = [
+      { last_ja: "山本", first_ja: "航",   last_en: "Yamamoto",  first_en: "Wataru" },
+      { last_ja: "田中", first_ja: "陸",   last_en: "Tanaka",    first_en: "Riku" },
+      { last_ja: "佐藤", first_ja: "蓮",   last_en: "Sato",      first_en: "Ren" },
+      { last_ja: "中村", first_ja: "陽菜", last_en: "Nakamura", first_en: "Hina" },
+      { last_ja: "小林", first_ja: "凛",   last_en: "Kobayashi", first_en: "Rin" },
+      { last_ja: "加藤", first_ja: "樹",   last_en: "Kato",      first_en: "Itsuki" },
+      { last_ja: "吉田", first_ja: "悠",   last_en: "Yoshida",   first_en: "Yu" }
+    ]
+
+    employees = driver_specs.each_with_index.map do |spec, i|
       no = employee_no_base + i
 
-      attrs = {
-        employee_no: no,
-        last_name_ja: "デモ",
-        first_name_ja: "運転手#{i + 1}",
-        last_name_en: "Demo",
-        first_name_en: "Driver#{i + 1}",
-        hired_on: start_date,
-        password: password,
-        password_confirmation: password
-      }
+      e = Employee.find_or_initialize_by(employee_no: no)
+      e.last_name_ja  = spec[:last_ja]
+      e.first_name_ja = spec[:first_ja]
+      e.last_name_en  = spec[:last_en]
+      e.first_name_en = spec[:first_en]
+      e.hired_on      = start_date
+      e.password      = password
+      e.password_confirmation = password
 
-      # email カラムがある環境だけ email を入れる（本番は無いので回避できる）
+      # emailカラムがある場合だけダミーで入れる（ログインでは使わないがDB制約回避）
       if Employee.column_names.include?("email")
-        attrs[:email] = "demo#{no}@example.com"
+        e.email = "demo#{no}@example.com" if e.email.blank?
       end
 
-      Employee.find_by(employee_no: no) || Employee.create!(attrs)
+      e.save!
+      e
     end
+
 
     # Courses 7本 + 各コースの配達先プール（コースごとに40件）
     courses = course_specs.map do |spec|
       Course.find_by(name: spec[:name]) || Course.create!(name: spec[:name], vehicle_type: vt)
     end
 
+    destination_specs = [
+      { cities: [ "奈良市" ], towns: %w[法蓮町 大宮町 芝辻町 押熊町 秋篠町 西大寺南町 学園北] }, # 奈良市北部
+      { cities: [ "橿原市", "大和高田市" ], towns: %w[内膳町 久米町 葛本町 今井町 神楽 大中] },   # 橿原・大和高田
+      { cities: [ "生駒市" ], towns: %w[東生駒 谷田町 元町 俵口町 壱分町 小明町 北新町] },       # 生駒
+      { cities: [ "香芝市", "王寺町" ], towns: %w[下田西 瓦口 真美ヶ丘 旭ヶ丘 久度 本町] },        # 香芝・王寺
+      { cities: [ "天理市" ], towns: %w[川原城町 田部町 別所町 櫟本町 前栽町 嘉幡町] },            # 天理
+      { cities: [ "大和郡山市" ], towns: %w[朝日町 高田町 小泉町 九条町 柳町 城町] },              # 大和郡山
+      { cities: [ "奈良市" ], towns: %w[高天町 東向中町 三条町 船橋町 今小路町 小西町] }           # 奈良市中心
+    ]
+
     courses.each_with_index do |course, idx|
+      spec = destination_specs[idx]
+
       40.times do |j|
-        name = "#{prefix} C#{idx + 1} 配達先#{j + 1}"
-        address = "デモ住所 C#{idx + 1}-#{j + 1}"
-        d = Destination.find_by(name: name) || Destination.create!(name: name, address: address)
+        city = spec[:cities][j % spec[:cities].length]
+        town = spec[:towns][j % spec[:towns].length]
+        num  = j + 1
+
+        name = "#{city} #{town} 配達先#{format('%03d', num)}"
+        address = "奈良県#{city}#{town}#{(num % 5) + 1}丁目#{(num % 20) + 1}-#{(num % 10) + 1}"
+
+        d = Destination.find_or_initialize_by(name: name)
+        d.address = address
+        d.save!
+
         CourseDestination.find_or_create_by!(course_id: course.id, destination_id: d.id)
       end
     end
+
 
     # 1年分作成（1日=7 delivery）
     created_deliveries = 0
@@ -285,5 +316,24 @@ namespace :demo do
     emp_count = employees.delete_all
 
     puts "==> Purged. snapshots=#{ss_count}, stops=#{stop_count}, deliveries=#{del_count}, course_destinations=#{cd_count}, courses=#{course_count}, vehicle_types=#{vt_count}, destinations=#{dest_count}, employees=#{emp_count}"
+  end
+
+  desc "DANGER: Purge ALL demo data (deliveries/stops/snapshots/courses/destinations/employees). Use demo env only."
+  task purge_all: :environment do
+    raise "Set CONFIRM=YES" unless ENV["CONFIRM"] == "YES"
+
+    ss_count   = ScoreSnapshot.delete_all
+    stop_count = DeliveryStop.delete_all
+    del_count  = Delivery.delete_all
+
+    da_count   = DriverAssignment.delete_all
+    cd_count   = CourseDestination.delete_all
+
+    course_count = Course.delete_all
+    dest_count   = Destination.delete_all
+    emp_count    = Employee.delete_all
+
+    # vehicle_types は消さない（マスタのため）
+    puts "==> Purged ALL. snapshots=#{ss_count}, stops=#{stop_count}, deliveries=#{del_count}, driver_assignments=#{da_count}, course_destinations=#{cd_count}, courses=#{course_count}, destinations=#{dest_count}, employees=#{emp_count}"
   end
 end
