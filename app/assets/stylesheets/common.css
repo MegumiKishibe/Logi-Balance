@@ -813,3 +813,225 @@ select:has(option[value=""]:checked) { color: #bbb !important; }
 .login-card {
   margin-top: 10px;
 }
+/* ===============================
+   Responsive：スマートフォン対応 (1024px以下)
+=============================== */
+@media (max-width: 1024px) {
+  /* 1. 全体の固定高さを解除 */
+  html, body {
+    overflow: auto; 
+    height: auto;
+    min-height: 100vh;
+  }
+
+  body {
+    align-items: flex-start; /* 上から順に並べる */
+    padding: 10px;
+  }
+
+  /* 2. サイドバーとメインを縦並びにする */
+  .layout-container {
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    gap: 10px;
+  }
+
+  /* サイドバーの最小幅を解除 */
+  .sidebar-wrapper {
+    min-width: unset;
+    padding-top: 10px;
+  }
+
+  /* 3. メインコンテンツの余白をスマホ用に調整 */
+  .layout-content-wrapper {
+    padding-right: 0;
+  }
+
+  .layout-main-box {
+    padding: 20px 15px; /* 中の余白を狭く */
+    overflow-y: visible; /* スクロールをbodyに任せる */
+  }
+
+  /* 4. サイドバーメニューを「横並び」または「コンパクト」に */
+  .sidebar {
+    padding: 10px;
+  }
+  
+  .sidebar-menu {
+    display: flex;
+    flex-wrap: wrap; /* 溢れたら折り返し */
+    gap: 5px;
+  }
+
+  .sidebar-menu a {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+
+  /* 5. テーブルをスマホで見やすく（横スクロール可能にする） */
+  .table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap; /* 文字を折り返さない */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 6. 合計エリア（summary）を2列にする */
+  .summary-item {
+    min-width: 45%; /* スマホで2つ並ぶサイズ */
+  }
+  
+  .summary-value {
+    font-size: 1.1rem;
+  }
+
+  /* 7. ボタンを押しやすく大きく */
+  .btn, .button, .done-btn {
+    width: 100%; /* スマホではボタンを横いっぱいに */
+    margin-bottom: 10px;
+  }
+
+  /* 8. フォームのラベルと入力を縦に並べる */
+  .field-row, .course-container .form-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .field-row label, .course-container .form-label {
+    width: 100%;
+  }
+
+  input[type="number"], select, .form-input {
+    max-width: 100%; /* 横幅いっぱい */
+  }
+
+  /* コース選択タイルの調整 */
+  .courses-grid, .settings-grid {
+    grid-template-columns: 1fr; /* 1列にする */
+  }
+}
+
+/* ===============================
+   ログイン画面のスマホ微調整
+=============================== */
+@media (max-width: 480px) {
+  .main-brand-logo .logo-text {
+    font-size: 1.8rem; /* ロゴを少し小さく */
+  }
+  
+  .login-card {
+    padding: 30px 20px;
+  }
+}
+/* ===============================
+   Mobile Optimize: コース開始画面
+=============================== */
+@media (max-width: 480px) {
+  
+  /* ① 入力フォームのはみ出しを修正 */
+  .course-container .form-group {
+    flex-direction: column; /* 縦並びを強制 */
+    align-items: stretch;   /* 横幅いっぱいに広げる */
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .course-container .form-label {
+    width: 100%;           /* ラベルを100%に */
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+  }
+
+  /* 入力フィールドが親要素を突き抜けないように制御 */
+  input[type="number"], 
+  .form-input {
+    width: 100% !important;
+    max-width: 100%;       /* 固定幅を解除 */
+    box-sizing: border-box; /* パディングを含めた幅計算に */
+  }
+
+  /* ② ボタンの配置を中央へ */
+  .course-container .form-actions {
+    margin-left: 0;        /* PC用の左マージンをリセット */
+    margin-top: 24px;
+    display: flex;
+    justify-content: center; /* 中央寄せ */
+  }
+
+  .btn-primary, .done-btn, .btn {
+    width: 90%;           /* 押しやすいように少し広めの中央配置 */
+    height: 50px;         /* スマホでタップしやすい高さ */
+    font-size: 1.1rem;
+  }
+  
+  /* welcome back メッセージの微調整 */
+  p.welcome-msg {
+    text-align: center;
+    margin: 15px 0;
+  }
+}
+/* ===============================
+   荷物登録画面：最終最適化
+=============================== */
+
+/* 追加ボタンの中央配置 */
+.form-actions-center {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+/* 区切り線（一覧の上の線） */
+.section-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.05);
+  margin: 30px 0;
+}
+
+/* 下部エリアのボタン縦並び */
+.bottom-actions-container {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 終了指針の入力ボックス */
+.end-odometer {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.end-odometer .form-input {
+  width: 160px !important; /* 走行距離入力は少し短めに */
+  text-align: center;
+  margin: 8px auto;
+}
+
+/* ボタンを縦に並べるコンテナ */
+.vertical-button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+
+/* スマホ対応（480px以下） */
+@media (max-width: 480px) {
+  .btn-wide {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center;
+  }
+  
+  /* 終了指針をスマホでは幅広に */
+  .end-odometer .form-input {
+    width: 100% !important;
+    max-width: 200px;
+  }
+}
