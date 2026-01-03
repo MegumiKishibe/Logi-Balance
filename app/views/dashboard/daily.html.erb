@@ -82,3 +82,10 @@
     </span>
   </div>
 </div>
+
+<div class="nav-button-group">
+  <%= link_to "コース選択画面へ戻る", courses_dashboard_index_path, class: "btn btn-secondary" %>
+  <%= link_to "CSVダウンロード",
+      daily_dashboard_path(@course, date: @date, format: :csv),
+      class: "btn btn-primary" %>
+</div>
