@@ -30,13 +30,13 @@
 ## 3. 提供価値
 - 実績（件数/個数/距離/拘束時間 等）を **スコア化** し、負担差を可視化
 - 可視化結果に基づく **コース再編の意思決定支援**（初版は提案機能なし・人手判断）
-- 蓄積データの平均から **適正物量の提示**
+- 蓄積データの平均から **適正物量の提示**（初版は提案機能なし・人手判断）
 
 ---
 
 ## 4. 主要機能（MVP）
 ### 4.1 実績 CRUD
-- **Create**：日付／ドライバー名／コース／配達先／個数／距離／時間（積込除外）  
+- **Create**：日付／ドライバー名／コース／配達先／個数／距離／時間（積込除外）
 - **Read/Update/Delete**：実績・ドライバー・コースを参照/更新/削除
 
 ### 4.2 配達先登録
@@ -46,63 +46,50 @@
 - リストの **「完了」** でステータスを配達完了に更新し **現時刻** を記録
 
 ### 4.4 負担スコア算出
-- 実績データ（5.1〜5.3）を用い **Work/Density/Total** を計算
+- 実績データを用い **Work/Density/Total** を計算
 
 ### 4.5 ダッシュボード
-- コース別/ドライバー別/全体の簡易グラフ  
-  - グラフ1：x＝距離、y＝件数  
+- コース別/日付別/全体の簡易グラフ
+  - グラフ1：x＝距離、y＝件数
   - グラフ2：**Work / Density / Total**（カード＋ミニチャート）
 
-### 4.6 PDF / CSV 出力
-- 期間・ドライバー・コースで絞り、PDF/CSV を出力
+### 4.6 CSV出力（将来PDF対応）
+- 期間・ドライバー・コースで絞り、PDF/CSV を出力（初版はCSVのみ）
 
 ---
 
 ## 5. 非機能要件（Quality Attributes）
 
 ### 5.1 セキュリティ
-1) **HTTPS（通信の暗号化）**  
-   - 本番は常時 HTTPS。HTTP は HTTPS へリダイレクト。  
-2) **サーバ側入力検証（バリデーション）**  
+1) **HTTPS（通信の暗号化）**
+   - 本番は常時 HTTPS。HTTP は HTTPS へリダイレクト。
+2) **サーバ側入力検証（バリデーション）**
    - 型/範囲/長さ/必須の確認。異常値で壊れない堅牢性を担保。
 
 ### 5.2 性能
-- **一覧はページング（50件/ページ）**  
-  - 全件読み出しによるメモリ/DB 負荷を回避。  
-  - **Kaminari** で実装：コントローラ `.page(params[:page]).per(50)`、ビュー `<%= paginate @records %>`。  
-- **複合インデックス（`driver_id, date`）**  
-  - 「ドライバー×日付範囲」検索を高速化。  
-  - 例（MySQL/Rails）：
-    ```rb
-    # db/migrate/xxxxxxxxxx_add_index_deliveries_on_driver_id_and_date.rb
-    class AddIndexDeliveriesOnDriverIdAndDate < ActiveRecord::Migration[7.1]
-      def change
-        add_index :deliveries, [:driver_id, :date], name: 'idx_deliveries_driver_date'
-      end
-    end
+- **ページング（Kaminari｜日付単位）**
+  - ダッシュボードは deliveries を直接ページングせず、**日付（@page_dates）を 10日/ページでページング**して表示。
+  - ページングされた日付（`@page_dates`）に含まれる日の `deliveries` のみ取得して表示する。
+  - 月を跨ぐ期間でも日別比較がしやすい形で分割でき、全件表示による負荷も抑えられる。
+  - 例（View）：
+    ```erb
+    <%= paginate @page_dates %>
     ```
+
+- **インデックス（deliveries.course_id / deliveries.employee_id｜実装済み）**
+  - 配達実績（deliveries）はコース別・従業員（ドライバー）別に参照することが多いため、
+    `course_id` と `employee_id` にインデックスを付与している。
+  - （現状のインデックス）
+    - `index_deliveries_on_course_id`
+    - `index_deliveries_on_employee_id`
+
+- **今後の改善**
+  - 日付範囲での集計・検索が増えた場合に備え、`service_date`（必要なら `course_id + service_date`）へのインデックス追加を検討する。
+
+- **N+1 回避（必要画面のみ `includes`）**
+  - 一覧で `delivery.employee` / `delivery.course` を表示するため、事前読み込みで N+1 を回避：
     ```rb
-    # app/controllers/deliveries_controller.rb
-    class DeliveriesController < ApplicationController
-      def index
-        from = params[:from]
-        to   = params[:to]
-        @deliveries = Delivery
-          .where(driver_id: params[:driver_id], date: from..to)
-          .order(date: :desc)
-          .page(params[:page]).per(50)
-      end
-    end
-    ```
-- **N+1 回避（必要画面のみ `includes`）**  
-  - 一覧で `delivery.driver.name` 等をループ表示する場合は事前読込：
-    ```rb
-    @deliveries = Delivery
-      .includes(:driver, :route, { stops: :destination })
-      .for_driver(params[:driver_id])
-      .within(params[:from], params[:to])
-      .order(date: :desc)
-      .page(params[:page]).per(50)
+    @deliveries = Delivery.includes(:employee, :course).order(service_date: :desc)
     ```
 ### 5.3 SLO（Service Level Objectives｜初期版・手動評価）
 
@@ -121,90 +108,90 @@
 - 管理画面 `/admin/metrics` に最新値を表示（目標達成時は緑バッジ）
 
 ### 実装位置
-- 依存：`Gemfile`（lograge）  
-- 設定：`config/environments/production.rb`（JSON出力＋duration_ms）  
-- 集計：`lib/tasks/metrics.rake`（P95/2秒以内率）  
+- 依存：`Gemfile`（lograge）
+- 設定：`config/environments/production.rb`（JSON出力＋duration_ms）
+- 集計：`lib/tasks/metrics.rake`（P95/2秒以内率）
 - 可視化：`config/routes.rb` / `app/controllers/admin/metrics_controller.rb` / `app/views/admin/metrics/index.html.erb`
 
 ---
 
 ## 6. 技術スタック（想定）
-- **Backend**：Ruby on Rails  
-- **Database**：MySQL  
-- **Frontend**：HTML / CSS / JavaScript  
+- **Backend**：Ruby on Rails
+- **Database**：MySQL
+- **Frontend**：HTML / CSS / JavaScript
 - **ログ/計測**：JSON Lines 形式のアプリログ、簡易集計スクリプト（Ruby/シェル）
 
 ---
 
 ## 7. リスクと前提
-- **スコア式の妥当性**：現場ヒアリングに基づき重みを調整。月次レビューで継続改善。  
-- **入力運用の徹底**：日次入力率 95%以上を達成するため、UI簡素化と周知を実施。  
+- **スコア式の妥当性**：現場ヒアリングに基づき重みを調整。月次レビューで継続改善。
+- **入力運用の徹底**：日次入力率 95%以上を達成するため、UI簡素化と周知を実施。
 - **性能**：ページング＋基本インデックスを優先導入。
 
 ## 8. 将来拡張（プラスアルファ）
-- **地図表示によるコース可視化**  
-  - 停止点（CSV/GPX）を取り込み、点群→凸包→バッファでコース面を自動生成。  
-  - Leaflet + turf.js により点/線/面を表示。必要箇所は手動ポリゴンで補正。  
+- **地図表示によるコース可視化**
+  - 停止点（CSV/GPX）を取り込み、点群→凸包→バッファでコース面を自動生成。
+  - Leaflet + turf.js により点/線/面を表示。必要箇所は手動ポリゴンで補正。
 
 ---
 
 ## エレベーターピッチ（経営層向け）
-配達負担の偏りと評価の不公平による離職・機会損失という課題に対し、**logi-balance** は負担の「見える化」によって **公正な配分判断** を支援する業務改善ツールです。  
+配達負担の偏りと評価の不公平による離職・機会損失という課題に対し、**logi-balance** は負担の「見える化」によって **公正な配分判断** を支援する業務改善ツールです。
 **コース間の負担ばらつきを 10 スコア以下** に抑え、実績データに基づく **適正物量の見直し** を可能にします。単なる実績記録ではなく、**事実に基づく是正** を促進し、現場運用を崩さず **小さく導入して効果検証** できる点が特長です。
 
 ---
 <details>
   <summary><h2>Appendix A. 負担スコアの根拠と計算詳細 </h2></summary>
 
-**初期パラメータ（暫定）**：`S=5, P=0.7, T=1.5, α=0.3`  
-- `Work = S×件数 + P×個数`  
-- `Density = 1 + α × max(0, km/停車 − T)`  
+**初期パラメータ（暫定）**：`S=5, P=0.7, T=1.5, α=0.3`
+- `Work = S×件数 + P×個数`
+- `Density = 1 + α × max(0, km/停車 − T)`
 - `Total = Work × Density`
 
 ### A.1 係数の意味と根拠
-**S（停車1件の基礎）= 5**  
-- 1件あたりの固定作業（駐停車、対面、署名、端末操作 等）  
+**S（停車1件の基礎）= 5**
+- 1件あたりの固定作業（駐停車、対面、署名、端末操作 等）
 - 単位：pt（≒分相当）。4〜6分の中央値より **5pt** を採用
 
-**P（1個の追加）= 0.7**  
-- 同一停車内で1個増えるごとの増分作業（持ち替え、スキャン 等）  
+**P（1個の追加）= 0.7**
+- 同一停車内で1個増えるごとの増分作業（持ち替え、スキャン 等）
 - 30〜60秒の中間より **0.7pt**。直感：`S/P ≈ 7.1` → **1件 ≒ 7個**
 
-**T（しきい値；km/停車）= 1.5**  
-- 疎密補正を開始する基準密度（ここまでは補正なし）  
+**T（しきい値；km/停車）= 1.5**
+- 疎密補正を開始する基準密度（ここまでは補正なし）
 - 事前分布の P50〜P60（中央値近傍）を採用
 
-**α（感度；/（km/停車））= 0.3**  
-- `T` 超過 1（km/停車）あたりの増分倍率  
+**α（感度；/（km/停車））= 0.3**
+- `T` 超過 1（km/停車）あたりの増分倍率
 - 例：疎い代表点 `r=P90=2.0` で +15% を狙う → `α = 0.15 / (2.0 − 1.5) = 0.3`
 
 ### A.2 計算手順
-**1) Work（作業量ポイント）**  
+**1) Work（作業量ポイント）**
 ```
 Work = S × 配達完了件数 + P × 配達個数
 ```
-- 例：`S=5, P=0.7`  
-  - ケース1：`5×60 + 0.7×100 = 370 pt`  
-  - ケース2：`5×40 + 0.7×60  = 242 pt`  
+- 例：`S=5, P=0.7`
+  - ケース1：`5×60 + 0.7×100 = 370 pt`
+  - ケース2：`5×40 + 0.7×60  = 242 pt`
   - ケース3：`5×20 + 0.7×30  = 121 pt`
 
-**2) Density（走行難易度・密度係数）**  
+**2) Density（走行難易度・密度係数）**
 ```
 Density = 1 + α × max(0, km/停車 − T)
 ```
-- 例：`T=1.5, α=0.3`  
-  - 都市部：`km/停車=0.667 → 1.0`  
-  - 準郊外：`2.0 → 1 + 0.3×0.5 = 1.15`  
+- 例：`T=1.5, α=0.3`
+  - 都市部：`km/停車=0.667 → 1.0`
+  - 準郊外：`2.0 → 1 + 0.3×0.5 = 1.15`
   - 山間部：`7.5 → 1 + 0.3×6.0 = 2.8`
 
-**3) Total（総合負担）**  
+**3) Total（総合負担）**
 ```
 Total = Work × Density
 ```
-- 例：  
-  - ケース1：`370 × 1.0  = 370.0`  
-  - ケース2：`242 × 1.15 = 278.3`  
-  - ケース3：`121 × 2.8  = 338.8`  
+- 例：
+  - ケース1：`370 × 1.0  = 370.0`
+  - ケース2：`242 × 1.15 = 278.3`
+  - ケース3：`121 × 2.8  = 338.8`
   → 負担の大きい順：**1 > 3 > 2**
 
 ### A.3 運用ポリシー（妥当性担保）
@@ -215,15 +202,15 @@ Total = Work × Density
 
 <details>
   <summary><h2>指標（KGI/KPI） </h2></summary>
-- **KGI（最終成果）**  
+- **KGI（最終成果）**
   - 2026/03 までに **コース負担スコア差分 ≤ 10**（2025/12–02 平均比）
-- **KPI（先行指標｜UX中心）**  
-  - 実績の **日次入力率 ≥ 95%**  
-  - **ダッシュボード応答の P95 を記録・可視化**（初版はログ集計）  
+- **KPI（先行指標｜UX中心）**
+  - 実績の **日次入力率 ≥ 95%**
+  - **ダッシュボード応答の P95 を記録・可視化**（初版はログ集計）
   - **2秒以内率 ≥ 90%**
-- **用語定義**  
-  - **負担スコア**：距離・件数・個数・拘束時間の加重合算（詳細はAppendix A を参照）  
-  - **P95**：全リクエストの95%がこの時間以下で処理される値  
+- **用語定義**
+  - **負担スコア**：距離・件数・個数・拘束時間の加重合算（詳細はAppendix A を参照）
+  - **P95**：全リクエストの95%がこの時間以下で処理される値
   - **2秒以内率**：`/dashboard` 応答が2秒以下の割合
 
 </details>
