@@ -1,26 +1,26 @@
-# Pin npm packages by running ./bin/importmap
-
+# app entry
 pin "application"
+
+# hotwire
 pin "@hotwired/turbo-rails", to: "turbo.min.js"
 pin "@hotwired/stimulus", to: "stimulus.min.js"
 pin "@hotwired/stimulus-loading", to: "stimulus-loading.js"
 
-# controllers
+# controllers / common
 pin_all_from "app/javascript/controllers", under: "controllers"
-
-# common sidebar
 pin_all_from "app/javascript/common", under: "common"
 
-# delivery_stops.js
+# custom js
 pin "delivery_stops", to: "delivery_stops.js"
-pin "chartkick" # @5.0.1
 
-# config/importmap.rb
-pin "chartkick" # @5.0.1
+# chart
+pin "chartkick"
 pin "Chart.bundle", to: "Chart.bundle.js"
-pin "@rails/ujs", to: "@rails--ujs.js" # @7.1.3
-pin "chartjs-plugin-annotation" # @3.1.0
-pin "@kurkle/color", to: "@kurkle--color.js" # @0.3.4
-pin "chart.js" # @4.5.1
-pin "chart.js/helpers", to: "chart.js--helpers.js" # @4.5.1
-pin "chart.js/auto", to: "chart.js--auto.js" # @4.5.1
+pin "chartjs-plugin-annotation"
+pin "@kurkle/color", to: "@kurkle--color.js"
+pin "chart.js"
+pin "chart.js/helpers", to: "chart.js--helpers.js"
+pin "chart.js/auto", to: "chart.js--auto.js"
+
+# rails ujs (optional)
+pin "@rails/ujs", to: "@rails--ujs.js"
