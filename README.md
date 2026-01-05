@@ -22,5 +22,10 @@ bin/dev
 ```
 
 ## ドキュメント
-- 設計資料一覧：docs/README.md
-- 要件定義書：docs/_proposal.md
+- 設計資料一覧： [docs/README.md](docs/README.md)
+- 要件定義書： [docs/_proposal.md](docs/_proposal.md)
+
+## 認証について（Employees）
+- 従業員アカウントは管理者が作成・管理します（自己登録はしません）。
+- メールアドレスを利用しない運用のため、パスワード再設定は提供せず、管理者が再発行します。
+

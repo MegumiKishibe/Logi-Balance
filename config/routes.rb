@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   # ---------- Devise ----------
-  devise_for :employees, skip: [ :registrations ]
+  devise_for :employees, skip: [ :registrations, :passwords ]
 
   # ---------- 基本設定 ----------
   root to: "deliveries#new" # ログイン後のトップを配達登録画面に設定
