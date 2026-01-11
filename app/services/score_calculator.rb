@@ -1,4 +1,3 @@
-# app/services/score_calculator.rb
 class ScoreCalculator
   include WorkloadConfig
 

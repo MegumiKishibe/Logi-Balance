@@ -10,7 +10,12 @@ Rails.application.routes.draw do
   # ---------- 配達（Deliveries） ----------
   resources :deliveries, only: [ :index, :new, :create, :show ] do
     member do
-      patch :finish # /deliveries/:id/finish
+      patch :finish
+    end
+
+    collection do
+      get :import
+      post :import_create
     end
 
     resources :delivery_stops, only: [ :new, :create ]

@@ -1,9 +1,16 @@
 <nav class="sidebar">
   <ul class="sidebar-menu">
-    <li class="<%= 'active' if controller_name == 'deliveries' %>">
+    <li class="<%= 'active' if controller_name == 'deliveries' && action_name == 'new' %>">
       <%= link_to new_delivery_path do %>
         <span class="material-symbols-outlined icon">local_shipping</span>
         <span>Courses</span>
+      <% end %>
+    </li>
+
+    <li class="<%= 'active' if controller_name == 'deliveries' && action_name.in?(%w[import import_create]) %>">
+      <%= link_to import_deliveries_path do %>
+        <span class="material-symbols-outlined icon">upload_file</span>
+        <span>CSV Import</span>
       <% end %>
     </li>
 

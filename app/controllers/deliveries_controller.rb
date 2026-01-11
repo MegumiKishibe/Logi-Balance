@@ -34,6 +34,59 @@ class DeliveriesController < ApplicationController
     @delivery = Delivery.find(params[:id])
   end
 
+  def import
+    # 画面表示だけ
+  end
+
+  def import_create
+    if params[:file].blank?
+      redirect_to import_deliveries_path, alert: "CSVファイルを選択してください"
+      return
+    end
+
+    Rails.logger.info("[CSV] file=#{params[:file]&.original_filename} size=#{params[:file]&.size} type=#{params[:file]&.content_type}")
+
+    result = ::DailyCsvImporter.new(params[:file]).call
+    Rails.logger.info("[CSV] result=#{result.inspect}")
+
+    ok = result.is_a?(Hash) ? (result[:ok] || result["ok"]) : result.present?
+
+    unless ok
+      error = result.is_a?(Hash) ? (result[:error] || result["error"]) : "取り込みに失敗しました"
+      redirect_to import_deliveries_path, alert: error
+      return
+    end
+
+    imported    = result.is_a?(Hash) ? (result[:imported] || result["imported"]) : nil
+    course_name = result.is_a?(Hash) ? (result[:course_name] || result["course_name"]) : nil
+    date        = result.is_a?(Hash) ? (result[:date] || result["date"]) : nil
+
+    msg = "取り込み完了"
+    msg += "：#{imported}件" if imported
+    msg += "（#{course_name} / #{date}）" if course_name && date
+
+    # ---- 負荷ポイント計算 ----
+    begin
+      course = Course.find_by(name: course_name)
+      target_date = date.respond_to?(:to_date) ? date.to_date : Date.parse(date.to_s)
+      delivery = Delivery.find_by(course_id: course&.id, service_date: target_date)
+
+      if delivery
+        ScoreSnapshotCreator.new(delivery).call
+      else
+        Rails.logger.warn("[SCORE] delivery not found for course=#{course_name.inspect} date=#{date.inspect}")
+      end
+    rescue => e
+      Rails.logger.error("[SCORE] #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}")
+    end
+    # ----------------------------------------------------------
+
+    redirect_to import_deliveries_path, notice: msg
+  rescue => e
+    Rails.logger.error("[CSV] #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}")
+    redirect_to import_deliveries_path, alert: "取り込み中にエラー：#{e.class} #{e.message}"
+  end
+
   def finish
     @delivery = current_employee.deliveries.find(params[:id])
 
