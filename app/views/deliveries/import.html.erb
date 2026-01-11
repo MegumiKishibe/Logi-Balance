@@ -1,0 +1,11 @@
+<h1>CSV取り込み</h1>
+
+<%= form_with url: import_create_deliveries_path, method: :post, multipart: true, local: true do %>
+  <div>
+    <%= file_field_tag :file, accept: ".csv", required: true %>
+  </div>
+
+  <div style="margin-top: 12px;">
+    <%= submit_tag "アップロードして取り込み", class: "btn btn-primary" %>
+  </div>
+<% end %>
