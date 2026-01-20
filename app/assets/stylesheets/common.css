@@ -623,10 +623,20 @@ select:has(option[value=""]:checked) { color: #bbb !important; }
     gap: 5px;
   }
 
-  .sidebar-menu a {
+  .sidebar-menu a,
+  .sidebar-menu button.logout-link {
     font-size: 0.85rem;
     padding: 8px 12px;
+
+    /* ボタンだけデフォルト見た目が混ざるので追加 */
+    background: transparent;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
   }
+
 
   .table {
     display: block;
