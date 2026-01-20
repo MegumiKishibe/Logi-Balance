@@ -1,4 +1,5 @@
 require "csv"
+require "digest"
 
 class DailyCsvImporter
   EXPECTED_HEADER = [ "日付", "従業員コード", "コース", "開始時刻", "開始指針", "終了指針", "配達先", "住所", "件数", "個数", "完了時間" ].freeze
@@ -8,6 +9,20 @@ class DailyCsvImporter
   end
 
   def call
+    # ================================
+    # ① CSV全体ハッシュで二重取り込み防止
+    # ================================
+    file_hash = sha256(@file)
+    if CsvImport.exists?(file_hash: file_hash, status: "success")
+      return fail_result("同じCSVはすでに取り込み済みです")
+    end
+
+    import = CsvImport.create!(
+      file_hash: file_hash,
+      filename: original_filename,
+      status: "processing"
+    )
+
     text = read_as_utf8(@file)
     rows = CSV.parse(text)
     return fail_result("CSVが空です") if rows.blank?
@@ -49,62 +64,81 @@ class DailyCsvImporter
     imported = 0
 
     ActiveRecord::Base.transaction do
-      delivery = Delivery.find_by(course_id: course.id, service_date: date)
+      # ================================
+      # ② Delivery は同日・同コースで1件
+      # ================================
+      delivery = Delivery.find_or_initialize_by(
+        course_id: course.id,
+        service_date: date
+      )
 
-      if delivery.nil?
-        delivery = Delivery.create!(
-          course_id: course.id,
-          service_date: date,
-          employee_id: employee.id,
-          started_at: started_at,
-          odo_start_km: odo_start,
-          odo_end_km: odo_end
-        )
-      else
-        delivery.update!(
-          employee_id: employee.id,
-          started_at: started_at,
-          odo_start_km: odo_start,
-          odo_end_km: odo_end
-        )
-      end
+      delivery.assign_attributes(
+        employee_id: employee.id,
+        started_at: started_at,
+        odo_start_km: odo_start,
+        odo_end_km: odo_end
+      )
+      delivery.save!
 
-      DeliveryStop.where(delivery_id: delivery.id).delete_all
-
+      # ================================
+      # ③ 後から読み込まれたCSVが勝つ（上書き）
+      # ================================
       detail_rows.each do |r|
         row = normalize_row(r)
+
         raise ActiveRecord::Rollback if parse_date(row[:date_str]) != date
         raise ActiveRecord::Rollback if row[:employee_code].to_s.strip != employee_code
         raise ActiveRecord::Rollback if row[:course_name].to_s.strip != course_name
 
-        dest_name = row[:destination_name].to_s.strip
-        address   = row[:address].to_s.strip
-        next if dest_name.blank? && address.blank?
+        address = row[:address].to_s.strip
+        next if address.blank?
 
-        destination = Destination.find_or_create_by!(
-          name: dest_name.presence || "(名称なし)",
-          address: address.presence || "(住所なし)"
+        # Destination は住所で再利用（名前は初回のみ）
+        destination = Destination.find_or_create_by!(address: address) do |d|
+          d.name = row[:destination_name].to_s.strip.presence || "(名称なし)"
+        end
+
+        # 同日×同コース×同住所 → 1件（後勝ち）
+        stop = DeliveryStop.find_or_initialize_by(
+          delivery_id: delivery.id,
+          destination_id: destination.id
         )
 
-        DeliveryStop.create!(
-          delivery_id: delivery.id,
-          destination_id: destination.id,
+        stop.assign_attributes(
           packages_count: parse_int(row[:packages_count]),
           pieces_count: parse_int(row[:pieces_count]),
           completed_at: build_time(date, row[:completed_time_str])
         )
+
+        stop.save!
         imported += 1
       end
+
+      import.update!(status: "success")
     end
 
     ok_result(imported: imported, course_name: course_name, date: date)
   rescue ActiveRecord::Rollback
+    import&.update(status: "failed")
     fail_result("CSV内で日付/従業員コード/コースが揃っていないか、形式が不正です")
   rescue => e
+    import&.update(status: "failed", error_message: e.message)
     fail_result(e.message)
   end
 
   private
+
+  def sha256(file)
+    io = file.tempfile
+    io.rewind
+    Digest::SHA256.hexdigest(io.read)
+  ensure
+    io.rewind
+  end
+
+  def original_filename
+    @file.original_filename
+  end
 
   def normalize_row(r)
     {
@@ -140,12 +174,11 @@ class DailyCsvImporter
   end
 
   def read_as_utf8(file)
-    raw = File.binread(file.path) # ASCII-8BIT
+    raw = File.binread(file.path)
     raw = raw.byteslice(3..) if raw.bytes[0, 3] == [ 0xEF, 0xBB, 0xBF ]
 
     begin
-      str = raw.force_encoding("UTF-8")
-      str.encode("UTF-8")
+      raw.force_encoding("UTF-8").encode("UTF-8")
     rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
       raw.force_encoding("Windows-31J").encode("UTF-8", invalid: :replace, undef: :replace, replace: "")
     end
