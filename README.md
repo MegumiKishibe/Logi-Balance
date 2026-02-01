@@ -1,5 +1,8 @@
 # Logi-Balance
 
+![Logi-Balance README Hero](assets/images/readme-hero.png)
+配送業務の“負荷”を、感覚からデータへ。
+
 配達コースごとの負担（件数・個数・距離など）の偏りをスコア化・可視化し、公平な配分判断を支援する業務改善ツールです。
 
 ## 主な機能（MVP）
@@ -13,13 +16,6 @@
 - Ruby on Rails / MySQL
 - HTML / CSS / JavaScript
 - Chartkick / Chart.js
-
-## セットアップ（開発環境）
-```bash
-bundle install
-bin/rails db:create db:migrate db:seed
-bin/dev
-```
 
 ## ドキュメント
 - 設計資料一覧： [docs/README.md](docs/README.md)

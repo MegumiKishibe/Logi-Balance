@@ -28,7 +28,6 @@
     <!-- annotation plugin register -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // chartjs-plugin-annotation は UMD で global に出ます（環境差あり）
         const plugin =
           window["chartjs-plugin-annotation"] ||
           window.ChartAnnotation ||
@@ -63,7 +62,7 @@
         <div class="sidebar-wrapper">
           <div class="sidebar-logo">
             <span class="logo-dot"></span>
-            <span class="logo-text">logi-balance</span>
+            <%= image_tag "Logi-Balance-logo.png", alt: "Logi-Balance", class: "logo-text-image" %>
           </div>
           <%= render "shared/sidebar" %>
         </div>
