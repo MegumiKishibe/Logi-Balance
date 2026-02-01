@@ -573,6 +573,12 @@ select:has(option[value=""]:checked) { color: #bbb !important; }
   color: #1b4d1b;
   letter-spacing: -0.02em;
 }
+.logo-text-image {
+  height: 22px;   /* お好みで 20〜28px */
+  width: auto;
+  display: inline-block;
+  vertical-align: middle;
+}
 .sub-welcome-text {
   font-size: 1.1rem;
   font-weight: 400;
