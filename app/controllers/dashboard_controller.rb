@@ -3,19 +3,19 @@ require "csv"
 class DashboardController < ApplicationController
   # コース選択画面
   def courses
-    @courses = Course.all
+    @delivery_routes = DeliveryRoute.all
   end
 
-  # ALL（日別集計）
+  # 前日（日別集計）
   def index
-    @course =
+    @delivery_route =
       if params[:id].present?
-        Course.find(params[:id])
+        DeliveryRoute.find(params[:id])
       else
-        Course.first
+        DeliveryRoute.first
       end
 
-    base = @course.deliveries
+    base = @delivery_route.daily_course_runs
 
     @page_dates = base
       .select(:service_date)
@@ -26,26 +26,26 @@ class DashboardController < ApplicationController
 
     dates = @page_dates.map(&:service_date)
 
-    @deliveries =
+    @daily_course_runs =
       if dates.any?
         base.where(service_date: dates).order(service_date: :desc, id: :desc)
       else
         base.none
       end
 
-    @deliveries = @deliveries.includes(:delivery_stops, :score_snapshots)
+    @daily_course_runs = @daily_course_runs.includes(:daily_course_run_stops, :daily_course_run_score_snapshots)
   end
 
   # 単日実績（CSV対応）
   def daily
-    @course =
+    @delivery_route =
       if params[:id].present?
-        Course.find(params[:id])
+        DeliveryRoute.find(params[:id])
       else
-        Course.first
+        DeliveryRoute.first
       end
 
-    @dates = Delivery.where(course_id: @course.id)
+    @dates = DailyCourseRun.where(delivery_route_id: @delivery_route.id)
       .distinct
       .order(service_date: :desc)
       .pluck(:service_date)
@@ -53,23 +53,23 @@ class DashboardController < ApplicationController
     base = params[:date].presence || @dates.first || Date.current
     @date = base.to_date
 
-    @delivery = Delivery.find_by(course_id: @course.id, service_date: @date)
+    @daily_course_run = DailyCourseRun.find_by(delivery_route_id: @delivery_route.id, service_date: @date)
 
     @stops =
-      if @delivery
-        @delivery.delivery_stops
+      if @daily_course_run
+        @daily_course_run.daily_course_run_stops
           .includes(:destination)
           .where.not(completed_at: nil)
           .order(:completed_at)
       else
-        DeliveryStop.none
+        DailyCourseRunStop.none
       end
 
     respond_to do |format|
       format.html
       format.csv do
-        send_data build_daily_csv(@course, @date, @delivery, @stops),
-                  filename: "daily_#{@course.id}_#{@date}.csv",
+        send_data build_daily_csv(@delivery_route, @date, @daily_course_run, @stops),
+                  filename: "daily_#{@delivery_route.id}_#{@date}.csv",
                   type: "text/csv; charset=utf-8"
       end
     end
@@ -77,12 +77,12 @@ class DashboardController < ApplicationController
 
   private
 
-  def build_daily_csv(course, date, delivery, stops)
+  def build_daily_csv(delivery_route, date, daily_course_run, stops)
     bom = "\uFEFF" # Excel文字化け対策
 
     distance_km =
-      if delivery&.odo_start_km && delivery&.odo_end_km
-        delivery.odo_end_km - delivery.odo_start_km
+      if daily_course_run&.odo_start_km && daily_course_run&.odo_end_km
+        daily_course_run.odo_end_km - daily_course_run.odo_start_km
       end
 
     minutes =
@@ -90,7 +90,7 @@ class DashboardController < ApplicationController
         ((stops.last.completed_at - stops.first.completed_at) / 60).to_i
       end
 
-    total_score = delivery&.score_snapshots&.last&.total_score
+    total_score = daily_course_run&.daily_course_run_score_snapshots&.last&.total_score
 
     csv = CSV.generate do |c|
       c << [ "日付", "コース", "配達先", "住所", "件数", "個数", "完了時間" ]
@@ -98,7 +98,7 @@ class DashboardController < ApplicationController
       stops.each do |stop|
         c << [
           date,
-          course.name,
+          delivery_route.name,
           stop.destination&.name,
           stop.destination&.address,
           stop.packages_count,

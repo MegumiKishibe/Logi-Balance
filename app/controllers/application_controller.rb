@@ -4,7 +4,7 @@ class ApplicationController < ActionController::Base
 
   # ログイン後の遷移先
   def after_sign_in_path_for(resource)
-    new_delivery_path
+    new_daily_course_run_path
   end
 
   # ログアウト後の遷移先

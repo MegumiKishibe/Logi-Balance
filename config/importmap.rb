@@ -11,7 +11,7 @@ pin_all_from "app/javascript/controllers", under: "controllers"
 pin_all_from "app/javascript/common", under: "common"
 
 # custom js
-pin "delivery_stops", to: "delivery_stops.js"
+pin "daily_course_run_stops", to: "daily_course_run_stops.js"
 
 # chart
 pin "chartkick"

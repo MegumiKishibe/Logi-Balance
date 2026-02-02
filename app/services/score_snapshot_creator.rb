@@ -1,16 +1,16 @@
 class ScoreSnapshotCreator
-  def initialize(delivery)
-    @delivery = delivery
+  def initialize(daily_course_run)
+    @daily_course_run = daily_course_run
   end
 
   def call
-    result = ScoreCalculator.new(@delivery).calculate
+    result = ScoreCalculator.new(@daily_course_run).calculate
     # result = { work: Integer, density: Float, total: Integer }
-    density_int = (result[:density].to_f * 100).round  # 1.30 -> 130
+    density_int = (result[:density].to_f * 100).round # 1.30 -> 130
 
-    ScoreSnapshot.where(delivery_id: @delivery.id).delete_all
+    DailyCourseRunScoreSnapshot.where(daily_course_run_id: @daily_course_run.id).delete_all
 
-    @delivery.score_snapshots.create!(
+    @daily_course_run.daily_course_run_score_snapshots.create!(
       work_score: result[:work],
       density_score: density_int,
       total_score: result[:total],

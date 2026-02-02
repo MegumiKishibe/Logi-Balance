@@ -20,7 +20,7 @@
     </thead>
 
     <tbody>
-      <% @delivery_stops.each_with_index do |stop, i| %>
+      <% @daily_course_run_stops.each_with_index do |stop, i| %>
         <tr>
           <td><strong><%= i + 1 %></strong></td>
           <td><%= stop.delivery.course.name %></td>
@@ -54,7 +54,9 @@
 
   <div class="nav-button-group mt-4">
     <%= link_to "荷物登録へ戻る",
-                new_delivery_delivery_stop_path(@delivery || Delivery.order(id: :desc).first),
-                class: "btn btn-secondary btn-wide" %>
+      new_daily_course_run_daily_course_run_stop_path(@daily_course_run || DailyCourseRun.order(id: :desc).first),
+      class: "btn btn-secondary btn-wide"
+    %>
+
   </div>
 </div>

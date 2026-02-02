@@ -1,9 +1,9 @@
 class ScoreCalculator
   include WorkloadConfig
 
-  def initialize(delivery)
-    @delivery = delivery
-    @stops = delivery.delivery_stops.where.not(completed_at: nil)
+  def initialize(daily_course_run)
+    @daily_course_run = daily_course_run
+    @stops = daily_course_run.daily_course_run_stops.where.not(completed_at: nil)
   end
 
   def calculate
@@ -29,7 +29,7 @@ class ScoreCalculator
 
   def calculate_density
     stops_count = @stops.count
-    distance_km = (@delivery.odo_end_km.to_f - @delivery.odo_start_km.to_f)
+    distance_km = (@daily_course_run.odo_end_km.to_f - @daily_course_run.odo_start_km.to_f)
 
     # ★ zero division 対策
     km_per_stop =
