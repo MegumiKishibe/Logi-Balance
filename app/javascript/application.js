@@ -1,4 +1,5 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 import "common/sidebar"
-import "delivery_stops"
+import "daily_course_run_stops"
+

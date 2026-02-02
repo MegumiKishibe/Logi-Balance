@@ -1,13 +1,18 @@
 <div class="title-group">
   <div class="title">
     <p2>Dashboard</p2>
-    <p3>| <%= @course.name %> (ALL)</p3>
+    <p3>| <%= @delivery_route.name %> (ALL)</p3>
   </div>
 </div>
 
 <div class="dashboard-tabs">
-  <%= link_to "ALL（日別）", dashboard_path(@course), class: "dash-tab #{action_name == 'index' ? 'active' : ''}" %>
-  <%= link_to "単日実績", daily_dashboard_path(@course, date: @dates&.first), class: "dash-tab #{action_name == 'daily' ? 'active' : ''}" %>
+  <%= link_to "全日（日別）",
+      dashboard_path(@delivery_route),
+      class: "dash-tab #{action_name == 'index' ? 'active' : ''}" %>
+
+  <%= link_to "単日実績",
+      daily_dashboard_path(@delivery_route, date: @dates&.first),
+      class: "dash-tab #{action_name == 'daily' ? 'active' : ''}" %>
 </div>
 
 <div class="pagination-wrapper">
@@ -27,14 +32,16 @@
   </thead>
 
   <tbody>
-    <% @deliveries.each do |delivery| %>
-      <% stops_all = delivery.delivery_stops %>
+    <% @daily_course_runs.each do |daily_course_run| %>
+      <% stops_all = daily_course_run.daily_course_run_stops %>
       <% stops_done = stops_all.where.not(completed_at: nil).order(:completed_at) %>
+
       <tr>
-        <td><strong><%= delivery.service_date.strftime("%m/%d") %></strong></td>
+        <td><strong><%= daily_course_run.service_date.strftime("%m/%d") %></strong></td>
         <td><%= stops_all.count %>件</td>
         <td><%= stops_all.sum(:pieces_count) %>個</td>
-        <td><%= delivery.odo_end_km - delivery.odo_start_km %> km</td>
+        <td><%= daily_course_run.odo_end_km - daily_course_run.odo_start_km %> km</td>
+
         <td>
           <% if stops_done.present? %>
             <span class="time-highlight">
@@ -44,9 +51,10 @@
             <span class="text-muted">-</span>
           <% end %>
         </td>
+
         <td>
           <span class="score-badge">
-            <%= delivery.score_snapshots.last&.total_score || "-" %>
+            <%= daily_course_run.daily_course_run_score_snapshots.last&.total_score || "-" %>
           </span>
         </td>
       </tr>
@@ -61,4 +69,3 @@
 <div class="nav-button-group">
   <%= link_to "コース選択画面へ戻る", courses_dashboard_index_path, class: "btn btn-secondary" %>
 </div>
-

@@ -1,6 +1,6 @@
 <h1>CSV取り込み</h1>
 
-<%= form_with url: import_create_deliveries_path, method: :post, multipart: true, local: true do %>
+<%= form_with url: import_create_daily_course_runs_path, method: :post, multipart: true, local: true do %>
   <div>
     <%= file_field_tag :file, accept: ".csv", required: true %>
   </div>

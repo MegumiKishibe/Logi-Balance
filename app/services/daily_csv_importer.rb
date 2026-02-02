@@ -49,11 +49,11 @@ class DailyCsvImporter
     employee = Employee.find_by(employee_no: employee_code)
     return fail_result("従業員が見つかりません: #{employee_code}") if employee.nil?
 
-    course_name = first[:course_name].to_s.strip
-    return fail_result("コース名が空です") if course_name.blank?
+    route_name = first[:course_name].to_s.strip
+    return fail_result("コース名が空です") if route_name.blank?
 
-    course = Course.find_by(name: course_name)
-    return fail_result("コースが見つかりません: #{course_name}") if course.nil?
+    delivery_route = DeliveryRoute.find_by(name: route_name)
+    return fail_result("コースが見つかりません: #{route_name}") if delivery_route.nil?
 
     started_at = build_time(date, first[:start_time_str])
     return fail_result("開始時刻が不正です: #{first[:start_time_str]}") if started_at.nil?
@@ -65,20 +65,20 @@ class DailyCsvImporter
 
     ActiveRecord::Base.transaction do
       # ================================
-      # ② Delivery は同日・同コースで1件
+      # ② DailyCourseRun は同日・同コースで1件
       # ================================
-      delivery = Delivery.find_or_initialize_by(
-        course_id: course.id,
+      daily_course_run = DailyCourseRun.find_or_initialize_by(
+        delivery_route_id: delivery_route.id,
         service_date: date
       )
 
-      delivery.assign_attributes(
+      daily_course_run.assign_attributes(
         employee_id: employee.id,
         started_at: started_at,
         odo_start_km: odo_start,
         odo_end_km: odo_end
       )
-      delivery.save!
+      daily_course_run.save!
 
       # ================================
       # ③ 後から読み込まれたCSVが勝つ（上書き）
@@ -88,7 +88,7 @@ class DailyCsvImporter
 
         raise ActiveRecord::Rollback if parse_date(row[:date_str]) != date
         raise ActiveRecord::Rollback if row[:employee_code].to_s.strip != employee_code
-        raise ActiveRecord::Rollback if row[:course_name].to_s.strip != course_name
+        raise ActiveRecord::Rollback if row[:course_name].to_s.strip != route_name
 
         address = row[:address].to_s.strip
         next if address.blank?
@@ -99,8 +99,8 @@ class DailyCsvImporter
         end
 
         # 同日×同コース×同住所 → 1件（後勝ち）
-        stop = DeliveryStop.find_or_initialize_by(
-          delivery_id: delivery.id,
+        stop = DailyCourseRunStop.find_or_initialize_by(
+          daily_course_run_id: daily_course_run.id,
           destination_id: destination.id
         )
 
@@ -117,7 +117,7 @@ class DailyCsvImporter
       import.update!(status: "success")
     end
 
-    ok_result(imported: imported, course_name: course_name, date: date)
+    ok_result(imported: imported, course_name: route_name, date: date)
   rescue ActiveRecord::Rollback
     import&.update(status: "failed")
     fail_result("CSV内で日付/従業員コード/コースが揃っていないか、形式が不正です")

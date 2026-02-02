@@ -1,17 +1,17 @@
 <div class="title-group">
   <div class="title">
     <p2>Dashboard</p2>
-    <p3>| <%= @course.name %> (Daily)</p3>
+    <p3>| <%= @delivery_route.name %> (Daily)</p3>
   </div>
 </div>
 
 <div class="dashboard-tabs">
-  <%= link_to "ALL（日別）", dashboard_path(@course), class: "dash-tab #{action_name == 'index' ? 'active' : ''}" %>
-  <%= link_to "単日実績", daily_dashboard_path(@course, date: @date), class: "dash-tab #{action_name == 'daily' ? 'active' : ''}" %>
+  <%= link_to "全日（日別）", dashboard_path(@delivery_route), class: "dash-tab #{action_name == 'index' ? 'active' : ''}" %>
+  <%= link_to "単日実績", daily_dashboard_path(@delivery_route, date: @date), class: "dash-tab #{action_name == 'daily' ? 'active' : ''}" %>
 </div>
 
 <div class="filter-section">
-  <%= form_with url: daily_dashboard_path(@course), method: :get, local: true, class: "field-row" do %>
+  <%= form_with url: daily_dashboard_path(@delivery_route), method: :get, local: true, class: "field-row" do %>
     <label class="form-label">表示日：</label>
     <div class="select-wrapper">
       <%= select_tag :date, options_for_select(@dates, @date), onchange: "this.form.submit()", class: "form-select" %>
@@ -58,8 +58,8 @@
   <div class="summary-item">
     <span class="summary-label">走行距離</span>
     <span class="summary-value">
-      <% if @delivery.present? %>
-        <%= @delivery.odo_end_km - @delivery.odo_start_km %>km
+      <% if @daily_course_run.present? %>
+        <%= @daily_course_run.odo_end_km - @daily_course_run.odo_start_km %>km
       <% else %>
         -
       <% end %>
@@ -78,7 +78,7 @@
   <div class="summary-item">
     <span class="summary-label">負担ポイント</span>
     <span class="summary-value">
-      <%= @delivery&.score_snapshots&.last&.total_score || "-" %>
+      <%= @daily_course_run&.daily_course_run_score_snapshots&.last&.total_score || "-" %>
     </span>
   </div>
 </div>
@@ -86,6 +86,6 @@
 <div class="nav-button-group">
   <%= link_to "コース選択画面へ戻る", courses_dashboard_index_path, class: "btn btn-secondary" %>
   <%= link_to "CSVダウンロード",
-      daily_dashboard_path(@course, date: @date, format: :csv),
+      daily_dashboard_path(@delivery_route, date: @date, format: :csv),
       class: "btn btn-primary" %>
 </div>

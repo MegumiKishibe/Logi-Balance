@@ -1,8 +1,8 @@
-class DriverAssignment < ApplicationRecord
+class EmployeeRouteAssignment < ApplicationRecord
   belongs_to :employee
-  belongs_to :course
+  belongs_to :delivery_route
 
-  validates :employee_id, :course_id, :effective_from, presence: true
+  validates :employee_id, :delivery_route_id, :effective_from, presence: true
   validate :effective_to_after_effective_from
 
   private
