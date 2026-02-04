@@ -53,7 +53,7 @@ https://logi-balance.com
 ### Analytics（コース別負担ポイント比較）
 <img src="app/assets/images/analytics.png" width="900" />
 
-- 単日・週次・月次で負担スコアを比較  
+- 単日・週次・月次で負担スコアを比較
 - 「どのコースが、どれだけ重いか」を数値で可視化
 
 ---
