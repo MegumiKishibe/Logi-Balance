@@ -146,9 +146,20 @@ namespace :demo do
         base_name = "#{city} #{town} 配達先#{format('%03d', num)}"
         name = "#{prefix} #{base_name}"
         address = "奈良県#{city}#{town}#{(num % 5) + 1}丁目#{(num % 20) + 1}-#{(num % 10) + 1}"
-
+        # 既存の Destination と address uniqueness に強い作り方
         d = Destination.find_or_initialize_by(name: name)
-        d.address = address
+
+        # address がユニーク制約/validation なら被りを避ける
+        # 例: "奈良県奈良市..." + " [DEMO]R01"
+        unique_suffix = " #{prefix}R#{format('%02d', idx + 1)}-#{format('%03d', num)}"
+
+        candidate_address = address
+        # 既に同じaddressの別Destinationがいるなら、suffixつけて回避
+        if Destination.where(address: candidate_address).where.not(id: d.id).exists?
+          candidate_address = "#{address}#{unique_suffix}"
+        end
+
+        d.address = candidate_address
         d.save!
 
         DeliveryRouteDestination.find_or_create_by!(delivery_route_id: route.id, destination_id: d.id)
