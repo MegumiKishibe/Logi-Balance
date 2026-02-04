@@ -15,7 +15,7 @@ class DashboardController < ApplicationController
         DeliveryRoute.first
       end
 
-    base = @delivery_route.daily_course_runs
+    base = @delivery_route.daily_course_runs.completed
 
     @page_dates = base
       .select(:service_date)
@@ -45,7 +45,7 @@ class DashboardController < ApplicationController
         DeliveryRoute.first
       end
 
-    @dates = DailyCourseRun.where(delivery_route_id: @delivery_route.id)
+    @dates = DailyCourseRun.completed.where(delivery_route_id: @delivery_route.id)
       .distinct
       .order(service_date: :desc)
       .pluck(:service_date)
@@ -53,7 +53,7 @@ class DashboardController < ApplicationController
     base = params[:date].presence || @dates.first || Date.current
     @date = base.to_date
 
-    @daily_course_run = DailyCourseRun.find_by(delivery_route_id: @delivery_route.id, service_date: @date)
+    @daily_course_run = DailyCourseRun.completed.find_by(delivery_route_id: @delivery_route.id, service_date: @date)
 
     @stops =
       if @daily_course_run

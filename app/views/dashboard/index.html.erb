@@ -27,7 +27,7 @@
       <th>個数</th>
       <th>距離</th>
       <th>所要時間</th>
-      <th>負担ポイント</th>
+      <th>負荷ポイント</th>
     </tr>
   </thead>
 
@@ -40,7 +40,17 @@
         <td><strong><%= daily_course_run.service_date.strftime("%m/%d") %></strong></td>
         <td><%= stops_all.count %>件</td>
         <td><%= stops_all.sum(:pieces_count) %>個</td>
-        <td><%= daily_course_run.odo_end_km - daily_course_run.odo_start_km %> km</td>
+        <%# 念のため走行距離欠損対策"-" %>
+        <td>
+          <% start_km = daily_course_run.odo_start_km %>
+          <% end_km   = daily_course_run.odo_end_km %>
+
+          <% if start_km.present? && end_km.present? %>
+            <%= end_km - start_km %> km
+          <% else %>
+            —
+          <% end %>
+        </td>
 
         <td>
           <% if stops_done.present? %>
