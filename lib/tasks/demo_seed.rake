@@ -18,8 +18,8 @@ namespace :demo do
     remaining = total
     (1..n).each do |i|
       left = n - i
-      min_i = [min, remaining - left * max].max
-      max_i = [max, remaining - left * min].min
+      min_i = [ min, remaining - left * max ].max
+      max_i = [ max, remaining - left * min ].min
       v = rand(min_i..max_i)
       parts << v
       remaining -= v
@@ -40,8 +40,8 @@ namespace :demo do
       left = n - idx - 1
       floor = floors[idx]
       min_left = floors[(idx + 1)..].sum
-      min_i = [floor, remaining - left * max].max
-      max_i = [max, remaining - min_left].min
+      min_i = [ floor, remaining - left * max ].max
+      max_i = [ max, remaining - min_left ].min
       v = rand(min_i..max_i)
       parts << v
       remaining -= v
@@ -71,9 +71,9 @@ namespace :demo do
     pcs_max = ENV.fetch("PCS_MAX", "100").to_i
 
     heavy_pkg_range = (pkg_max - 5..pkg_max)
-    heavy_pcs_range = ([pcs_max - 10, pcs_min].max..pcs_max)
-    light_pkg_range = (pkg_min..[pkg_min + 5, pkg_max].min)
-    light_pcs_range = (pcs_min..[pcs_min + 15, pcs_max].min)
+    heavy_pcs_range = ([ pcs_max - 10, pcs_min ].max..pcs_max)
+    light_pkg_range = (pkg_min..[ pkg_min + 5, pkg_max ].min)
+    light_pcs_range = (pcs_min..[ pcs_min + 15, pcs_max ].min)
 
     route_specs = [
       { kind: :heavy,  name: "奈良市北部 2tコース" },
@@ -132,13 +132,13 @@ namespace :demo do
 
     # 配達先プール（ルートごとに40件）
     destination_specs = [
-      { cities: ["奈良市"],           towns: %w[法蓮町 大宮町 芝辻町 押熊町 秋篠町 西大寺南町 学園北] },
-      { cities: ["橿原市","大和高田市"], towns: %w[内膳町 久米町 葛本町 今井町 神楽 大中] },
-      { cities: ["生駒市"],           towns: %w[東生駒 谷田町 元町 俵口町 壱分町 小明町 北新町] },
-      { cities: ["香芝市","王寺町"],     towns: %w[下田西 瓦口 真美ヶ丘 旭ヶ丘 久度 本町] },
-      { cities: ["天理市"],           towns: %w[川原城町 田部町 別所町 櫟本町 前栽町 嘉幡町] },
-      { cities: ["大和郡山市"],        towns: %w[朝日町 高田町 小泉町 九条町 柳町 城町] },
-      { cities: ["奈良市"],           towns: %w[高天町 東向中町 三条町 船橋町 今小路町 小西町] }
+      { cities: [ "奈良市" ],           towns: %w[法蓮町 大宮町 芝辻町 押熊町 秋篠町 西大寺南町 学園北] },
+      { cities: [ "橿原市", "大和高田市" ], towns: %w[内膳町 久米町 葛本町 今井町 神楽 大中] },
+      { cities: [ "生駒市" ],           towns: %w[東生駒 谷田町 元町 俵口町 壱分町 小明町 北新町] },
+      { cities: [ "香芝市", "王寺町" ],     towns: %w[下田西 瓦口 真美ヶ丘 旭ヶ丘 久度 本町] },
+      { cities: [ "天理市" ],           towns: %w[川原城町 田部町 別所町 櫟本町 前栽町 嘉幡町] },
+      { cities: [ "大和郡山市" ],        towns: %w[朝日町 高田町 小泉町 九条町 柳町 城町] },
+      { cities: [ "奈良市" ],           towns: %w[高天町 東向中町 三条町 船橋町 今小路町 小西町] }
     ]
 
     delivery_routes.each_with_index do |route, idx|
@@ -218,9 +218,9 @@ namespace :demo do
 
         pieces_total =
           case kind
-          when :heavy then rand([heavy_pcs_range.begin, packages_total].max..heavy_pcs_range.end)
-          when :light then rand([light_pcs_range.begin, packages_total].max..light_pcs_range.end)
-          else rand([pcs_min, packages_total].max..pcs_max)
+          when :heavy then rand([ heavy_pcs_range.begin, packages_total ].max..heavy_pcs_range.end)
+          when :light then rand([ light_pcs_range.begin, packages_total ].max..light_pcs_range.end)
+          else rand([ pcs_min, packages_total ].max..pcs_max)
           end
 
         min_stops = [
@@ -231,9 +231,9 @@ namespace :demo do
 
         stop_count =
           case kind
-          when :heavy then [rand(10..18), min_stops].max
-          when :light then [rand(6..10),  min_stops].max
-          else             [rand(8..14),  min_stops].max
+          when :heavy then [ rand(10..18), min_stops ].max
+          when :light then [ rand(6..10),  min_stops ].max
+          else             [ rand(8..14),  min_stops ].max
           end
 
         packages_parts = bounded_partition(packages_total, stop_count, min: 1, max: 10)
