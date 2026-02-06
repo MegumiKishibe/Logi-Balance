@@ -27,7 +27,7 @@ namespace :demo do
     parts
   end
 
-  # pieces は packages 以上にしたい（各stopで pieces >= packages, pieces<=20）
+  # pieces は packages 以上にしたい（各stopで pieces >= packages, pieces<=max）
   def bounded_partition_with_floor(total, floors, max:)
     n = floors.length
     min_sum = floors.sum
@@ -49,14 +49,19 @@ namespace :demo do
     parts
   end
 
+  def add_prefix(prefix, text)
+    "#{prefix} #{text}".strip
+  end
+
   # ==== seed =================================================================
-  desc "Seed 7 employees + 7 delivery_routes demo data (safe & purgeable by prefix)"
+  desc "Seed 7 employees + 7 delivery_routes demo data (no prefix by default; safe & re-runnable)"
   task seed_annual: :environment do
-    start_date = parse_date!(ENV.fetch("START_DATE", "2024-12-01"))
-    end_date   = parse_date!(ENV.fetch("END_DATE",   "2025-11-30"))
+    start_date = parse_date!(ENV.fetch("START_DATE", "2024-01-01"))
+    end_date   = parse_date!(ENV.fetch("END_DATE",   Date.current.to_s))
     raise "START_DATE must be <= END_DATE" if start_date > end_date
 
-    prefix = ENV.fetch("DEMO_PREFIX", "[DEMO]")
+    # ★デフォルトは空（=表示に [DEMO] を付けない）
+    prefix = ENV.fetch("DEMO_PREFIX", "").to_s
     password = ENV.fetch("PASSWORD", "testtest")
     employee_no_base = ENV.fetch("EMPLOYEE_NO_BASE", "9001").to_i
 
@@ -81,11 +86,12 @@ namespace :demo do
     ]
 
     puts "==> demo:seed_annual #{start_date}..#{end_date} (#{(end_date - start_date).to_i + 1} days)"
-    puts "==> prefix=#{prefix}, employees=7 (#{employee_no_base}..#{employee_no_base + 6})"
+    puts "==> prefix=#{prefix.inspect} (blank = no prefix), employees=7 (#{employee_no_base}..#{employee_no_base + 6})"
     puts "==> daily totals per route: packages #{pkg_min}..#{pkg_max}, pieces #{pcs_min}..#{pcs_max}"
 
     # VehicleType（共通）
-    vt = VehicleType.find_or_create_by!(name: "#{prefix} 2t")
+    vt_name = add_prefix(prefix, "2t")
+    vt = VehicleType.find_or_create_by!(name: vt_name)
 
     # Employees 7人
     driver_specs = [
@@ -118,21 +124,21 @@ namespace :demo do
       e
     end
 
-    # DeliveryRoutes 7本（prefix付きにして purge 安全化）
+    # DeliveryRoutes 7本（prefixはデフォ空。付けたい人だけ ENV で付ける）
     delivery_routes = route_specs.map do |spec|
-      name = "#{prefix} #{spec[:name]}"
+      name = add_prefix(prefix, spec[:name])
       DeliveryRoute.find_by(name: name) || DeliveryRoute.create!(name: name, vehicle_type: vt)
     end
 
-    # 配達先プール（ルートごとに40件 / Destinationもprefix付き）
+    # 配達先プール（ルートごとに40件）
     destination_specs = [
-      { cities: [ "奈良市" ], towns: %w[法蓮町 大宮町 芝辻町 押熊町 秋篠町 西大寺南町 学園北] },
+      { cities: [ "奈良市" ],           towns: %w[法蓮町 大宮町 芝辻町 押熊町 秋篠町 西大寺南町 学園北] },
       { cities: [ "橿原市", "大和高田市" ], towns: %w[内膳町 久米町 葛本町 今井町 神楽 大中] },
-      { cities: [ "生駒市" ], towns: %w[東生駒 谷田町 元町 俵口町 壱分町 小明町 北新町] },
-      { cities: [ "香芝市", "王寺町" ], towns: %w[下田西 瓦口 真美ヶ丘 旭ヶ丘 久度 本町] },
-      { cities: [ "天理市" ], towns: %w[川原城町 田部町 別所町 櫟本町 前栽町 嘉幡町] },
-      { cities: [ "大和郡山市" ], towns: %w[朝日町 高田町 小泉町 九条町 柳町 城町] },
-      { cities: [ "奈良市" ], towns: %w[高天町 東向中町 三条町 船橋町 今小路町 小西町] }
+      { cities: [ "生駒市" ],           towns: %w[東生駒 谷田町 元町 俵口町 壱分町 小明町 北新町] },
+      { cities: [ "香芝市", "王寺町" ],     towns: %w[下田西 瓦口 真美ヶ丘 旭ヶ丘 久度 本町] },
+      { cities: [ "天理市" ],           towns: %w[川原城町 田部町 別所町 櫟本町 前栽町 嘉幡町] },
+      { cities: [ "大和郡山市" ],        towns: %w[朝日町 高田町 小泉町 九条町 柳町 城町] },
+      { cities: [ "奈良市" ],           towns: %w[高天町 東向中町 三条町 船橋町 今小路町 小西町] }
     ]
 
     delivery_routes.each_with_index do |route, idx|
@@ -144,22 +150,24 @@ namespace :demo do
         num  = j + 1
 
         base_name = "#{city} #{town} 配達先#{format('%03d', num)}"
-        name = "#{prefix} #{base_name}"
-        address = "奈良県#{city}#{town}#{(num % 5) + 1}丁目#{(num % 20) + 1}-#{(num % 10) + 1}"
-        # 既存の Destination と address uniqueness に強い作り方
-        d = Destination.find_or_initialize_by(name: name)
+        name = add_prefix(prefix, base_name)
 
-        # address がユニーク制約/validation なら被りを避ける
-        # 例: "奈良県奈良市..." + " [DEMO]R01"
-        unique_suffix = " #{prefix}R#{format('%02d', idx + 1)}-#{format('%03d', num)}"
-
-        candidate_address = address
-        # 既に同じaddressの別Destinationがいるなら、suffixつけて回避
-        if Destination.where(address: candidate_address).where.not(id: d.id).exists?
-          candidate_address = "#{address}#{unique_suffix}"
+        base_address = "奈良県#{city}#{town}#{(num % 5) + 1}丁目#{(num % 20) + 1}-#{(num % 10) + 1}"
+        # address unique を想定して、衝突したら suffix で必ず回避
+        unique_suffix = " R#{format('%02d', idx + 1)}-#{format('%03d', num)}"
+        address = base_address
+        if Destination.where(address: address).exists?
+          address = "#{base_address}#{unique_suffix}"
+          # それでも万一被ったら連番で回避（超保険）
+          k = 1
+          while Destination.where(address: address).exists?
+            k += 1
+            address = "#{base_address}#{unique_suffix}-#{k}"
+          end
         end
 
-        d.address = candidate_address
+        d = Destination.find_or_initialize_by(name: name)
+        d.address = address
         d.save!
 
         DeliveryRouteDestination.find_or_create_by!(delivery_route_id: route.id, destination_id: d.id)
@@ -173,12 +181,11 @@ namespace :demo do
 
     (start_date..end_date).each_with_index do |date, day_idx|
       delivery_routes.each_with_index do |route, ci|
-        employee = employees[ci] # ルートと社員を1対1で対応
+        employee = employees[ci] # ルートと社員を1対1
 
         started_at = Time.zone.local(date.year, date.month, date.day, 8, 0, 0) + (ci * 10).minutes
         odo_start  = 10_000 + rand(0..5_000)
 
-        # 既に同日・同ルート・同社員があれば作り直し（再実行に強い）
         run = DailyCourseRun.find_by(employee_id: employee.id, delivery_route_id: route.id, service_date: date)
 
         if run
@@ -201,7 +208,6 @@ namespace :demo do
           created_runs += 1
         end
 
-        # その日の合計（重い/軽いで分布を寄せる）
         kind = route_specs[ci][:kind]
         packages_total =
           case kind
@@ -233,7 +239,6 @@ namespace :demo do
         packages_parts = bounded_partition(packages_total, stop_count, min: 1, max: 10)
         pieces_parts   = bounded_partition_with_floor(pieces_total, packages_parts, max: 20)
 
-        # destinations は route 紐付けから sample（大量ならpluckしてsampleでもOK）
         destinations = route.destinations.sample(stop_count)
 
         t = started_at + 15.minutes
@@ -286,57 +291,5 @@ namespace :demo do
 
     puts "==> Done. created_runs=#{created_runs} (existing updated too), created_stops=#{created_stops}, created_snapshots=#{created_snapshots}"
     puts "==> Login: employee_no=#{employee_no_base}..#{employee_no_base + 6}, password=#{password}"
-  end
-
-  desc "Purge demo data created by demo:seed_annual (by prefix + EMPLOYEE_NO_BASE)"
-  task purge_annual: :environment do
-    prefix = ENV.fetch("DEMO_PREFIX", "[DEMO]")
-    employee_no_base = ENV.fetch("EMPLOYEE_NO_BASE", "9001").to_i
-
-    employees = Employee.where(employee_no: employee_no_base..employee_no_base + 6)
-    if employees.none?
-      puts "==> No demo employees found (#{employee_no_base}..#{employee_no_base + 6})"
-      next
-    end
-
-    route_ids = DeliveryRoute.where("name LIKE ?", "#{prefix}%").pluck(:id)
-    if route_ids.empty?
-      puts "==> No demo delivery_routes found (prefix=#{prefix})"
-      emp_count = employees.delete_all
-      puts "==> Purged employees only: employees=#{emp_count}"
-      next
-    end
-
-    runs = DailyCourseRun.where(employee_id: employees.select(:id), delivery_route_id: route_ids)
-    run_ids = runs.pluck(:id)
-
-    ss_count   = DailyCourseRunScoreSnapshot.where(daily_course_run_id: run_ids).delete_all
-    stop_count = DailyCourseRunStop.where(daily_course_run_id: run_ids).delete_all
-    run_count  = runs.delete_all
-
-    drd_count = DeliveryRouteDestination.where(delivery_route_id: route_ids).delete_all
-    route_count = DeliveryRoute.where(id: route_ids).delete_all
-    vt_count = VehicleType.where("name LIKE ?", "#{prefix}%").delete_all
-    dest_count = Destination.where("name LIKE ?", "#{prefix}%").delete_all
-
-    emp_count = employees.delete_all
-
-    puts "==> Purged. snapshots=#{ss_count}, stops=#{stop_count}, runs=#{run_count}, route_destinations=#{drd_count}, routes=#{route_count}, vehicle_types=#{vt_count}, destinations=#{dest_count}, employees=#{emp_count}"
-  end
-
-  desc "DANGER: Purge ALL demo-ish data (runs/stops/snapshots/routes/destinations/employees). Use demo env only."
-  task purge_all: :environment do
-    raise "Set CONFIRM=YES" unless ENV["CONFIRM"] == "YES"
-
-    ss_count   = DailyCourseRunScoreSnapshot.delete_all
-    stop_count = DailyCourseRunStop.delete_all
-    run_count  = DailyCourseRun.delete_all
-
-    drd_count  = DeliveryRouteDestination.delete_all
-    route_count = DeliveryRoute.delete_all
-    dest_count = Destination.delete_all
-    emp_count  = Employee.delete_all
-
-    puts "==> Purged ALL. snapshots=#{ss_count}, stops=#{stop_count}, runs=#{run_count}, route_destinations=#{drd_count}, routes=#{route_count}, destinations=#{dest_count}, employees=#{emp_count}"
   end
 end
