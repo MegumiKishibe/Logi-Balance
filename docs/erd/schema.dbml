@@ -1,0 +1,108 @@
+// Source of truth: docs/erd/schema.dbml
+// dbdiagram view: https://dbdiagram.io/d/698e0681bd82f5fce28eab7c
+// Update policy: edit this file first, then paste into dbdiagram to sync.
+
+// -------------------- Master tables --------------------
+Table employees {
+  id int [pk, increment]
+  employee_no int [not null, unique]
+  last_name_ja varchar(30) [not null]
+  first_name_ja varchar(30) [not null]
+  last_name_en varchar(30)
+  first_name_en varchar(30)
+  hired_on date [not null]
+}
+
+Table vehicle_types {
+  id int [pk, increment]
+  name varchar(20) [not null]
+}
+
+Table delivery_routes {
+  id int [pk, increment]
+  name varchar(20) [not null]
+  vehicle_type_id int [not null]
+}
+
+Table destinations {
+  id int [pk, increment]
+  name varchar(50) [not null]
+  address varchar(50) [not null]
+}
+
+// Route ⇄ Destination (join table, no order)
+Table delivery_route_destinations {
+  id int [pk, increment]
+  delivery_route_id int [not null]
+  destination_id int [not null]
+
+  indexes {
+    (delivery_route_id, destination_id) [unique]
+  }
+}
+
+// -------------------- Assignment --------------------
+// ※名前は employee_route_assignments を採用
+Table employee_route_assignments {
+  id int [pk, increment]
+  employee_id int [not null]
+  delivery_route_id int [not null]
+  effective_from date [not null]
+  effective_to date
+}
+
+// -------------------- Daily operation --------------------
+Table daily_course_runs {
+  id int [pk, increment]
+  employee_id int [not null]
+  delivery_route_id int [not null]
+  service_date date [not null]
+  started_at datetime [not null]
+  finished_at datetime
+  odo_start_km int [not null]
+  odo_end_km int
+// Unique: 1日1人1コースは1レコード（取り込み重複防止）
+  indexes {
+    (employee_id, delivery_route_id, service_date) [unique]
+  }
+}
+
+Table daily_course_run_stops {
+  id int [pk, increment]
+  daily_course_run_id int [not null]
+  destination_id int [not null]
+  stop_no int [not null]
+  packages_count int [not null]
+  pieces_count int [not null]
+  completed_at datetime
+
+  indexes {
+    (daily_course_run_id, stop_no) [unique]
+  }
+}
+
+Table daily_course_run_score_snapshots {
+  id int [pk, increment]
+  daily_course_run_id int [not null]
+  work_score int [not null]
+  density_score decimal(5,2) [not null]
+  total_score int [not null]
+  calculated_at datetime [not null]
+}
+
+// -------------------- Relationships (Refs) --------------------
+Ref: delivery_routes.vehicle_type_id > vehicle_types.id
+
+Ref: delivery_route_destinations.delivery_route_id > delivery_routes.id
+Ref: delivery_route_destinations.destination_id > destinations.id
+
+Ref: employee_route_assignments.employee_id > employees.id
+Ref: employee_route_assignments.delivery_route_id > delivery_routes.id
+
+Ref: daily_course_runs.employee_id > employees.id
+Ref: daily_course_runs.delivery_route_id > delivery_routes.id
+
+Ref: daily_course_run_stops.daily_course_run_id > daily_course_runs.id
+Ref: daily_course_run_stops.destination_id > destinations.id
+
+Ref: daily_course_run_score_snapshots.daily_course_run_id > daily_course_runs.id

@@ -6,7 +6,7 @@ class DashboardController < ApplicationController
     @delivery_routes = DeliveryRoute.all
   end
 
-  # 前日（日別集計）
+  # 全日（日別集計）
   def index
     @delivery_route =
       if params[:id].present?

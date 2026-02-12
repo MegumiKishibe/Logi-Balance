@@ -1,5 +1,5 @@
 class DailyCourseRunsController < ApplicationController
-  before_action :authenticate_employee!
+  before_action :authenticate_employee! #認可は不要
 
   def index
     @daily_course_runs =
@@ -15,7 +15,7 @@ class DailyCourseRunsController < ApplicationController
 
   def create
     @daily_course_run = DailyCourseRun.new(
-      employee: current_employee,
+      employee: current_employee, # ログイン中の従業員を設定
       delivery_route_id: params[:daily_course_run][:delivery_route_id],
       service_date: Date.current,
       started_at: Time.current,
@@ -76,18 +76,17 @@ class DailyCourseRunsController < ApplicationController
         DailyCourseRun.find_by(delivery_route_id: delivery_route&.id, service_date: target_date)
 
       if daily_course_run
-        # 既存クラス名を後で改名するならここも合わせる
         ScoreSnapshotCreator.new(daily_course_run).call
       else
         Rails.logger.warn("[SCORE] daily_course_run not found for route=#{route_name.inspect} date=#{date.inspect}")
       end
-    rescue => e
+    rescue => e #例外処理1 スコア計算失敗時も取り込み自体は成功とする
       Rails.logger.error("[SCORE] #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}")
     end
     # ----------------------------------------------------------
 
     redirect_to import_daily_course_runs_path, notice: msg
-  rescue => e
+  rescue => e #例外処理2 取り込み自体が失敗した場合
     Rails.logger.error("[CSV] #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}")
     redirect_to import_daily_course_runs_path, alert: "取り込み中にエラー：#{e.class} #{e.message}"
   end

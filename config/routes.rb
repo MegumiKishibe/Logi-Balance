@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   # ---------- 日次コース稼働（DailyCourseRunsController） ----------
   resources :daily_course_runs, only: [ :index, :new, :create, :show ] do
     member do
-      patch :finish # 状態変更系追加アクション
+      patch :finish # 状態変更系追加アクション&patch
     end
 
     collection do
@@ -20,7 +20,7 @@ Rails.application.routes.draw do
 
     # 日次コース稼働に紐づく配達先実績の入力（ネスト：new/create）
     resources :daily_course_run_stops, only: [ :new, :create ]
-  end
+  end #/daily_course_runs/:daily_course_run_id/daily_course_run_stops/new idを指定しないとcreateできない
 
   # ---------- 配達先（Destinations） ----------
   resources :destinations, only: [ :new, :create, :edit, :update ]
