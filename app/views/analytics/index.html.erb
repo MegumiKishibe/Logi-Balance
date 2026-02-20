@@ -59,8 +59,8 @@
 </div>
 
 <div class="highlight-cards">
-  <%if @highlights %>
-
+    <% if @highlights.present? && @highlights[:highest].present? %>
+    
     <div class="highlight-card highest">
       <p class="highlight-label">最高負荷</p>
       <p class="highlight-course"><%= @highlights[:highest][:name] %></p>
