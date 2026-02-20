@@ -6,7 +6,6 @@
 </div>
 
 <div class="dashboard-tabs">
-  <%# 現在のページ（単日）なら 'active' クラスをつける %>
   <%= link_to "単日", analytics_path, class: "dash-tab #{action_name == 'index' ? 'active' : ''}" %>
   <%= link_to "週次", weekly_analytics_path, class: "dash-tab #{action_name == 'weekly' ? 'active' : ''}" %>
   <%= link_to "月次", monthly_analytics_path, class: "dash-tab #{action_name == 'monthly' ? 'active' : ''}" %>
@@ -26,7 +25,7 @@
 
 <div class="analytics-chart-panel">
   <%= column_chart @daily_scores,
-        colors: ["#6abf69"],
+        colors: ["#cfd8dc"],
         library: {
           scales: {
             y: {
@@ -41,20 +40,55 @@
               annotations: {
                 avgLine: {
                   type: "line",
-                  yMin: @avg_value,
-                  yMax: @avg_value,
+                  yMin: @highlights[:average].round,
+                  yMax: @highlights[:average].round,
                   borderColor: "#ff1744",
                   borderWidth: 3,
                   borderDash: [8, 6],
                   label: {
                     display: true,
-                    content: "平均 #{@avg_value}",
+                    content: "平均 #{@highlights[:average].round}",
                     position: "start",
-                    color: "#ff1744"
+                    color: "#cfd8dc"
                   }
                 }
               }
             }
           }
         } %>
+</div>
+
+<div class="highlight-cards">
+  <%if @highlights %>
+
+    <div class="highlight-card highest">
+      <p class="highlight-label">最高負荷</p>
+      <p class="highlight-course"><%= @highlights[:highest][:name] %></p>
+      <p class="highlight-score"><%= @highlights[:highest][:score].round %></p>
+      <p class="highlight-diff">
+        <% diff = @highlights[:highest][:diff] %>
+        <%= diff > 0 ? "+#{diff.round}" : diff.round %>
+      </p>
+    </div>
+
+    <div class="highlight-card closest">
+      <p class="highlight-label">平均値付近</p>
+      <p class="highlight-course"><%= @highlights[:closest][:name] %></p>
+      <p class="highlight-score"><%= @highlights[:closest][:score].round %></p>
+      <p class="highlight-diff">
+        <% diff = @highlights[:closest][:diff] %>
+        <%= diff > 0 ? "+#{diff.round}" : diff.round %>
+      </p>
+    </div>
+
+    <div class="highlight-card lowest">
+      <p class="highlight-label">最低負荷</p>
+      <p class="highlight-course"><%= @highlights[:lowest][:name] %></p>
+      <p class="highlight-score"><%= @highlights[:lowest][:score].round %></p>
+      <p class="highlight-diff">
+        <% diff = @highlights[:lowest][:diff] %>
+        <%= diff > 0 ? "+#{diff.round}" : diff.round %>
+      </p>
+    </div>
+  <% end %>
 </div>

@@ -27,7 +27,7 @@
   <%= line_chart @weekly_scores,
     curve: true,
     library: {
-      scales: { y: { suggestedMax: @y_max } },
+      scales: { y: { beginAtZero: true } },
       plugins: {
         annotation: {
           annotations: {
@@ -38,7 +38,6 @@
               xMin: @range_start,
               xMax: @range_end,
               yMin: @avg_value,
-              yMax: @y_max,
               backgroundColor: "rgba(255, 23, 68, 0.08)",
               borderWidth: 0,
               drawTime: "beforeDatasetsDraw"
@@ -47,4 +46,39 @@
         }
       }
     } %>
+</div>
+
+<div class="highlight-cards">
+  <%if @highlights %>
+
+    <div class="highlight-card highest">
+      <p class="highlight-label">週次合計最高負荷</p>
+      <p class="highlight-course"><%= @highlights[:highest][:name] %></p>
+      <p class="highlight-score"><%= @highlights[:highest][:score].round %></p>
+      <p class="highlight-diff">
+        <% diff = @highlights[:highest][:diff] %>
+        <%= diff > 0 ? "+#{diff.round}" : diff.round %>
+      </p>
+    </div>
+
+    <div class="highlight-card closest">
+      <p class="highlight-label">週次合計平均値付近</p>
+      <p class="highlight-course"><%= @highlights[:closest][:name] %></p>
+      <p class="highlight-score"><%= @highlights[:closest][:score].round %></p>
+      <p class="highlight-diff">
+        <% diff = @highlights[:closest][:diff] %>
+        <%= diff > 0 ? "+#{diff.round}" : diff.round %>
+      </p>
+    </div>
+
+    <div class="highlight-card lowest">
+      <p class="highlight-label">週次合計最低負荷</p>
+      <p class="highlight-course"><%= @highlights[:lowest][:name] %></p>
+      <p class="highlight-score"><%= @highlights[:lowest][:score].round %></p>
+      <p class="highlight-diff">
+        <% diff = @highlights[:lowest][:diff] %>
+        <%= diff > 0 ? "+#{diff.round}" : diff.round %>
+      </p>
+    </div>
+  <% end %>
 </div>

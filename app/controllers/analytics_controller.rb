@@ -12,7 +12,8 @@ class AnalyticsController < ApplicationController
       .sum("daily_course_run_score_snapshots.total_score")
 
     values = @daily_scores.values.map(&:to_f)
-    @avg_value = values.any? ? (values.sum / values.size).round : 0
+
+    @highlights = AnalyticsHighlightService.new(@daily_scores).call
 
     max_value = values.max || 0
     @y_max = (max_value * 1.1).ceil
@@ -47,6 +48,15 @@ class AnalyticsController < ApplicationController
       filled = range.each_with_object({}) { |day, h| h[day] = data[day] || 0 }
       { name: route.name, data: filled }
     end
+    #---- weeklyアクションのコードに、AnalyticsHighlightServiceを呼び出す部分を追加----#
+    weekly_totals = series.each_with_object({}) do |s, h|
+      name = s[:name]
+      total = s[:data].values.sum
+      h[name] = total
+    end
+
+    @highlights = AnalyticsHighlightService.new(weekly_totals).call
+    #---- ここまで ----#
 
     max_value = series.flat_map { |s| s[:data].values }.map(&:to_i).max || 0
     @y_max = (max_value * 1.1).ceil
@@ -104,6 +114,16 @@ class AnalyticsController < ApplicationController
       filled = range.each_with_object({}) { |day, h| h[day] = data[day] || 0 }
       { name: route.name, data: filled }
     end
+
+    #---- monthlyアクションのコードに、AnalyticsHighlightServiceを呼び出す部分を追加----#
+    monthly_totals = series.each_with_object({}) do |s, h|
+      name = s[:name]
+      total = s[:data].values.sum
+      h[name] = total
+    end
+
+    @highlights = AnalyticsHighlightService.new(monthly_totals).call
+    #---- ここまで ----#
 
     max_value = series.flat_map { |s| s[:data].values }.map(&:to_i).max || 0
     @y_max = (max_value * 1.1).ceil
