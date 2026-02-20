@@ -13,7 +13,7 @@ class DailyCourseRunsController < ApplicationController
     @delivery_routes = DeliveryRoute.all
   end
 
-  def create
+  def create #業務開始
     @daily_course_run = DailyCourseRun.new(
       employee: current_employee, # ログイン中の従業員を設定
       delivery_route_id: params[:daily_course_run][:delivery_route_id],

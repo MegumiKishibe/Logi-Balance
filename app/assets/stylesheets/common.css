@@ -817,10 +817,7 @@ select:has(option[value=""]:checked) { color: #bbb !important; }
     max-width: 100px;
   }
 }
-/* ===============================
-   Sidebar：Logout(button_to) を link と同じ見た目にする
-=============================== */
-
+/*Sidebar：Logout(button_to) を link と同じ見た目にする*/
 .sidebar-menu .logout-item form.button_to {
   margin: 0;
   padding: 0;
@@ -853,4 +850,54 @@ select:has(option[value=""]:checked) { color: #bbb !important; }
 
 .sidebar-menu .logout-item button.logout-link * {
   cursor: pointer !important;
+}
+/*highlight-cards*/
+
+.highlight-cards {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.highlight-card {
+  flex: 1;
+  padding: 20px;
+  border-radius: 12px;
+  background: #f8f9fa;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.highlight-card.highest {
+  border-top: 4px solid #e53935;
+  
+}
+
+.highlight-card.closest {
+  border-top: 4px solid #9e9e9e;
+}
+
+.highlight-card.lowest {
+  border-top: 4px solid #fbc02d;
+}
+
+.highlight-label {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.highlight-course {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.highlight-score {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.highlight-diff {
+  font-size: 14px;
+  opacity: 0.7;
 }
