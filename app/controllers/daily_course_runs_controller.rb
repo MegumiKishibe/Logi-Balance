@@ -47,48 +47,19 @@ class DailyCourseRunsController < ApplicationController
       return
     end
 
-    Rails.logger.info("[CSV] file=#{params[:file]&.original_filename} size=#{params[:file]&.size} type=#{params[:file]&.content_type}")
+    Rails.logger.info("[CSV] file=#{params[:file]&.original_filename} ")
 
     result = ::DailyCsvImporter.new(params[:file]).call
-    Rails.logger.info("[CSV] result=#{result.inspect}")
 
-    ok = result.is_a?(Hash) ? (result[:ok] || result["ok"]) : result.present?
-    unless ok
-      error = result.is_a?(Hash) ? (result[:error] || result["error"]) : "取り込みに失敗しました"
-      redirect_to import_daily_course_runs_path, alert: error
-      return
+    if result[:success]
+      redirect_to import_daily_course_runs_path, notice: result[:message]
+    else
+      redirect_to import_daily_course_runs_path, alert: result[:message]
     end
 
-    imported       = result.is_a?(Hash) ? (result[:imported] || result["imported"]) : nil
-    route_name     = result.is_a?(Hash) ? (result[:course_name] || result["course_name"]) : nil # importer側のキー互換
-    date           = result.is_a?(Hash) ? (result[:date] || result["date"]) : nil
-
-    msg = "取り込み完了"
-    msg += "：#{imported}件" if imported
-    msg += "（#{route_name} / #{date}）" if route_name && date
-
-    # ---- 負荷ポイント計算 ----
-    begin
-      delivery_route = DeliveryRoute.find_by(name: route_name)
-      target_date = date.respond_to?(:to_date) ? date.to_date : Date.parse(date.to_s)
-
-      daily_course_run =
-        DailyCourseRun.find_by(delivery_route_id: delivery_route&.id, service_date: target_date)
-
-      if daily_course_run
-        ScoreSnapshotCreator.new(daily_course_run).call
-      else
-        Rails.logger.warn("[SCORE] daily_course_run not found for route=#{route_name.inspect} date=#{date.inspect}")
-      end
-    rescue => e #例外処理1 スコア計算失敗時も取り込み自体は成功とする
-      Rails.logger.error("[SCORE] #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}")
-    end
-    # ----------------------------------------------------------
-
-    redirect_to import_daily_course_runs_path, notice: msg
-  rescue => e #例外処理2 取り込み自体が失敗した場合
+  rescue => e
     Rails.logger.error("[CSV] #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}")
-    redirect_to import_daily_course_runs_path, alert: "取り込み中にエラー：#{e.class} #{e.message}"
+    redirect_to import_daily_course_runs_path, alert: "取り込み中にエラーが発生しました"
   end
 
   def finish

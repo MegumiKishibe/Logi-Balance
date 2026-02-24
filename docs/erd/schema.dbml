@@ -90,6 +90,22 @@ Table daily_course_run_score_snapshots {
   calculated_at datetime [not null]
 }
 
+// -------------------- System operation --------------------
+Table csv_imports {
+  id int [pk, increment]
+  file_hash varchar(64) [not null]
+  filename varchar(255) [not null]
+  status int [not null] // enum: 0=processing, 1=success, 2=failed
+  error_message text
+  created_at datetime
+  updated_at datetime
+
+  indexes {
+    (file_hash)
+    (status)
+  }
+}
+
 // -------------------- Relationships (Refs) --------------------
 Ref: delivery_routes.vehicle_type_id > vehicle_types.id
 
